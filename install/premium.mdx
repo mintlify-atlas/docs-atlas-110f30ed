@@ -1,0 +1,86 @@
+---
+title: "SpotX for Premium Accounts — Disable Podcast Ads Only"
+sidebarTitle: "Premium Install"
+description: "Install SpotX for Spotify Premium users: skips ad blocking but disables audio ads in podcasts and applies experimental features and new theme."
+---
+
+The **Premium** installation mode is designed for users who already have an active Spotify Premium subscription. Since Premium accounts are not served banner, video, or audio ads during regular playback, the standard ad-blocking patches are skipped entirely. SpotX still applies the new theme, enables all curated experimental features, and disables audio ads specifically within podcasts — which Spotify serves independently of the Premium subscription.
+
+## What's Included
+
+<CardGroup cols={2}>
+  <Card title="New Theme Activated" icon="palette">
+    The modern Spotify UI is enabled, including the redesigned right and left sidebars and cover art changes.
+  </Card>
+  <Card title="Podcast Audio Ads Disabled" icon="microphone-slash">
+    Audio advertisements served inside podcasts are disabled — these are separate from regular playback ads and affect Premium users too.
+  </Card>
+  <Card title="Experimental Features" icon="flask">
+    All curated experimental Spotify features are activated automatically during installation.
+  </Card>
+  <Card title="Ad Blocking Skipped" icon="circle-xmark">
+    The standard banner, video, and audio ad-blocking patches are **not applied**. Premium accounts do not receive these ads and the patches are unnecessary.
+  </Card>
+</CardGroup>
+
+<Note>
+  The Premium mode also removes the **Upgrade to Premium** button and the **Upgrade** menu item from the Spotify UI, since they are not relevant for existing Premium subscribers.
+</Note>
+
+## Installation
+
+<Steps>
+
+  ### Open PowerShell
+
+  Press <kbd>Win</kbd> + <kbd>R</kbd>, type `powershell`, and press **Enter**. Alternatively, search for **Windows PowerShell** in the Start menu. PowerShell 5.1 or later is required.
+
+  ### Run the install command
+
+  Paste one of the following commands and press **Enter**.
+
+  <CodeGroup>
+
+  ```powershell Primary (GitHub)
+  iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -premium -new_theme"
+  ```
+
+  ```powershell Mirror (GitHub Pages)
+  iex "& { $(iwr -useb 'https://spotx-official.github.io/SpotX/run.ps1') } -m -premium -new_theme"
+  ```
+
+  </CodeGroup>
+
+  Use the **mirror** command if the primary URL is unreachable or slow in your region.
+
+  ### Alternatively, use the batch file
+
+  Download and double-click **[Install\_Prem.bat](https://raw.githack.com/amd64fox/SpotX/main/scripts/Install_Prem.bat)**. The batch file runs the same command above and falls back to the mirror automatically if the primary URL fails.
+
+  ### Respond to the interactive prompts
+
+  During installation, the script pauses twice to ask for your preferences:
+
+  **1. Podcast hiding**
+  ```
+  Do you want to hide podcasts/episodes/audiobooks from the homepage? [y/n]:
+  ```
+  - Enter `y` to hide podcasts, episodes, and audiobooks from your homepage.
+  - Enter `n` to keep them visible.
+
+  **2. Update blocking**
+  ```
+  Do you want to block Spotify automatic updates? [y/n]:
+  ```
+  - Enter `y` to prevent Spotify from self-updating (recommended to preserve the patch).
+  - Enter `n` to leave Spotify's updater active.
+
+  ### Wait for completion
+
+  When the script finishes, Spotify is ready to use with the new theme, experimental features enabled, and podcast audio ads disabled.
+
+</Steps>
+
+<Tip>
+  To pre-answer the prompts or further customise your Premium installation — for example, adding `-podcasts_off -block_update_on` to skip podcast content and block updates — see the full flag reference at [Configuration Parameters](/configuration/parameters).
+</Tip>

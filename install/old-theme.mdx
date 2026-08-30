@@ -1,0 +1,91 @@
+---
+title: "Old Theme Installation — Legacy Spotify UI with SpotX"
+sidebarTitle: "Old Theme"
+description: "Install SpotX with the classic Spotify UI, locked to version 1.2.13. Automatically blocks updates to preserve the legacy interface."
+---
+
+The **Old Theme** installation is for users who prefer the classic Spotify interface that was present before the modern redesign. Because Spotify removed the old theme in versions beyond 1.2.13, this installation **forces a downgrade** (or overwrite) to Spotify `1.2.13.661.ga588f749` — the last version that supports the legacy UI — and permanently blocks Spotify from updating to a newer version.
+
+<Note>
+  This installation mode is intended for users who prefer the familiar, classic Spotify layout over the redesigned interface introduced in later versions. If you are comfortable with the current Spotify UI, use the [New Theme](/install/new-theme) installation instead.
+</Note>
+
+## What's Included
+
+<CardGroup cols={2}>
+  <Card title="Spotify 1.2.13 Forced" icon="rotate-left">
+    Spotify is installed or overwritten with version `1.2.13.661.ga588f749` — the last release that supports the old theme.
+  </Card>
+  <Card title="Old Theme Activated" icon="swatchbook">
+    The classic Spotify interface is enabled, restoring the pre-redesign layout and visual style.
+  </Card>
+  <Card title="Updates Blocked" icon="ban">
+    Spotify automatic updates are blocked unconditionally to prevent the client from upgrading and losing the old theme.
+  </Card>
+  <Card title="Experimental Features" icon="flask">
+    All curated experimental Spotify features are activated automatically, compatible with version 1.2.13.
+  </Card>
+</CardGroup>
+
+<Warning>
+  **Update blocking is mandatory for the old theme.** If Spotify is allowed to update itself, it will upgrade beyond version 1.2.13 and the old theme will no longer be available. The install command always passes `-block_update_on` for this reason. Do not attempt to unblock updates while using the old theme installation.
+</Warning>
+
+## Installation
+
+<Steps>
+
+  ### Open PowerShell
+
+  Press <kbd>Win</kbd> + <kbd>R</kbd>, type `powershell`, and press **Enter**. Alternatively, search for **Windows PowerShell** in the Start menu. PowerShell 5.1 or later is required.
+
+  ### Run the install command
+
+  Paste one of the following commands and press **Enter**. The script will automatically handle installing or overwriting your current Spotify version with `1.2.13.661.ga588f749`.
+
+  <CodeGroup>
+
+  ```powershell Primary (GitHub)
+  iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -v 1.2.13.661.ga588f749 -confirm_spoti_recomended_over -block_update_on"
+  ```
+
+  ```powershell Mirror (GitHub Pages)
+  iex "& { $(iwr -useb 'https://spotx-official.github.io/SpotX/run.ps1') } -m -v 1.2.13.661.ga588f749 -confirm_spoti_recomended_over -block_update_on"
+  ```
+
+  </CodeGroup>
+
+  Use the **mirror** command if the primary URL is unreachable or slow in your region.
+
+  **Flags used in this command:**
+
+  | Flag | Description |
+  |---|---|
+  | `-v 1.2.13.661.ga588f749` | Targets this specific Spotify version for download and installation |
+  | `-confirm_spoti_recomended_over` | Automatically overwrites any existing Spotify installation without prompting |
+  | `-block_update_on` | Blocks Spotify automatic updates immediately after patching |
+
+  ### Alternatively, use the batch file
+
+  Download and double-click **[Install\_Old\_theme.bat](https://raw.githack.com/amd64fox/SpotX/main/Install_Old_theme.bat)**. The batch file runs the same command above and falls back to the mirror automatically if the primary URL fails.
+
+  ### Respond to any interactive prompts
+
+  The `-confirm_spoti_recomended_over` flag automatically confirms the version overwrite. You will still be prompted once:
+
+  **Podcast hiding**
+  ```
+  Do you want to hide podcasts/episodes/audiobooks from the homepage? [y/n]:
+  ```
+  - Enter `y` to hide podcasts, episodes, and audiobooks from the homepage.
+  - Enter `n` to keep them visible.
+
+  ### Wait for completion
+
+  The script downloads Spotify 1.2.13, installs it, applies all patches for the old theme, and blocks future updates. When it exits, Spotify is ready to use with the legacy interface.
+
+</Steps>
+
+<Tip>
+  To pre-answer the podcast prompt and run completely unattended, add `-podcasts_off` (to hide) or `-podcasts_on` (to keep) to the command. See [Configuration Parameters](/configuration/parameters) for all available flags.
+</Tip>

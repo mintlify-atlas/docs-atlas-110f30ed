@@ -1,0 +1,49 @@
+---
+title: "SpotX Requirements: Windows & Spotify Version Compatibility"
+sidebarTitle: "Requirements"
+description: "SpotX requires Windows 7–11, PowerShell 5.1 or later, and the official Spotify desktop client — not the Microsoft Store edition."
+---
+
+Before running SpotX, confirm that your system meets the requirements below. SpotX is designed to work on a wide range of Windows versions, but a handful of platform-specific limitations apply to older operating systems and 32-bit (x86) hardware. No third-party runtimes or frameworks are needed — only a supported version of Windows with PowerShell and the official Spotify desktop client.
+
+## System Requirements
+
+| Component | Requirement | Notes |
+|---|---|---|
+| **Operating System** | Windows 7, 8, 8.1, 10, 11 | Windows 12 is also detected and supported in the installer code |
+| **PowerShell** | 5.1 or later | PowerShell 7+ automatically imports the `Appx` module via Windows PowerShell compatibility shim |
+| **Spotify Client** | Official desktop version only | **Not** the Microsoft Store edition — see warning below. Download from [loadspot.vercel.app](https://loadspot.vercel.app/) |
+| **Architecture** | x64 (primary), x86 (limited), ARM64 | x86 support is capped at Spotify `1.2.53`; ARM64 is fully supported |
+| **Admin Rights** | Not required by default | Microsoft Defender exclusion prompts may request elevation |
+
+## Spotify Version Compatibility
+
+SpotX automatically selects the correct Spotify version for your system:
+
+- **Windows 10 / 11 / 12 (x64 or ARM64)** — the latest recommended Spotify release is installed when needed (currently `1.2.97` and above)
+- **Windows 7, 8, and 8.1** — limited to Spotify `1.2.5.1006.g22820f93` (the last version that runs on legacy Windows)
+- **32-bit (x86) systems** — limited to Spotify `1.2.53.440.g7b2f582a` (the last version with x86 installer assets)
+
+If you request a version newer than what your system supports, SpotX will automatically downgrade the target to the highest compatible release and display a warning.
+
+<Warning>
+  The **Microsoft Store (UWP) edition of Spotify is not supported** by SpotX. The installer will detect `SpotifyAB.SpotifyMusic` in your Appx packages and prompt you to remove it before proceeding. You can pass `-confirm_uninstall_ms_spoti` to automate this step. After removal, SpotX can download and install the standard desktop client for you automatically.
+</Warning>
+
+<Note>
+  **x86 (32-bit) systems:** Spotify dropped x86 installer assets after version `1.2.53`. SpotX will automatically cap the installation at `1.2.53.440.g7b2f582a` on 32-bit machines and cannot install newer Spotify versions on those systems.
+</Note>
+
+<Note>
+  **Windows 7 and 8.1:** Spotify stopped releasing builds compatible with legacy Windows after version `1.2.5`. SpotX will automatically target `1.2.5.1006.g22820f93` on these systems. Patching functionality on Windows 7/8.1 is provided on a best-effort basis.
+</Note>
+
+## PowerShell Notes
+
+SpotX is a pure PowerShell script (`run.ps1`) and requires **PowerShell 5.1 or later**, which ships with all supported Windows versions by default:
+
+- **Windows 10 / 11** — PowerShell 5.1 is pre-installed in `System32\WindowsPowerShell\v1.0\`
+- **Windows 7 / 8.1** — PowerShell 5.1 is available as a free download from Microsoft (Windows Management Framework 5.1)
+- **PowerShell 7+** — fully supported; the installer automatically imports the `Appx` module using the `-UseWindowsPowerShell` compatibility shim where required
+
+No execution-policy changes are needed when invoking the installer via `iex` / `iwr` as shown in the [Installation](/installation) guide.

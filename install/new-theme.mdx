@@ -1,0 +1,82 @@
+---
+title: "New Theme Installation — SpotX for Spotify Desktop"
+sidebarTitle: "New Theme"
+description: "Install SpotX with the modern Spotify UI (new theme). Activates the updated right and left sidebars and all experimental features."
+---
+
+The **New Theme** installation is the default and recommended way to install SpotX. It patches the current Spotify desktop client with the modern UI — including the redesigned left and right sidebars — while enabling all curated experimental features and giving you interactive prompts to tailor the experience to your preferences.
+
+## What's Included
+
+<CardGroup cols={2}>
+  <Card title="New Theme Activated" icon="palette">
+    Enables the updated right and left sidebars plus selected cover art changes introduced in the modern Spotify UI.
+  </Card>
+  <Card title="Experimental Features" icon="flask">
+    All curated experimental Spotify features are activated automatically during installation.
+  </Card>
+  <Card title="Podcast Hiding (Optional)" icon="microphone-slash">
+    You will be prompted to choose whether to hide podcasts, episodes, and audiobooks from your homepage.
+  </Card>
+  <Card title="Update Blocking (Optional)" icon="shield">
+    You will be prompted to choose whether to block Spotify's automatic update mechanism.
+  </Card>
+</CardGroup>
+
+## Installation
+
+<Steps>
+
+  ### Open PowerShell
+
+  Press <kbd>Win</kbd> + <kbd>R</kbd>, type `powershell`, and press **Enter**. Alternatively, search for **Windows PowerShell** in the Start menu. PowerShell 5.1 or later is required.
+
+  ### Run the install command
+
+  Paste one of the following commands and press **Enter**. The script is fetched directly from GitHub and executed in memory — nothing is saved to disk first.
+
+  <CodeGroup>
+
+  ```powershell Primary (GitHub)
+  iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -new_theme"
+  ```
+
+  ```powershell Mirror (GitHub Pages)
+  iex "& { $(iwr -useb 'https://spotx-official.github.io/SpotX/run.ps1') } -m -new_theme"
+  ```
+
+  </CodeGroup>
+
+  Use the **mirror** command if the primary URL is unreachable or slow in your region. The `-m` flag tells the script to resolve all subsequent asset downloads from the mirror as well.
+
+  ### Alternatively, use the batch file
+
+  If you prefer not to use PowerShell directly, download and double-click **[Install\_New\_theme.bat](https://raw.githack.com/amd64fox/SpotX/main/Install_New_theme.bat)**. The batch file runs the same command above and falls back to the mirror automatically if the primary URL fails.
+
+  ### Respond to the interactive prompts
+
+  During installation, the script pauses twice to ask for your preferences:
+
+  **1. Podcast hiding**
+  ```
+  Do you want to hide podcasts/episodes/audiobooks from the homepage? [y/n]:
+  ```
+  - Enter `y` to hide podcasts, episodes, and audiobooks from the Spotify homepage.
+  - Enter `n` to keep them visible (Spotify's default behaviour).
+
+  **2. Update blocking**
+  ```
+  Do you want to block Spotify automatic updates? [y/n]:
+  ```
+  - Enter `y` to prevent Spotify from self-updating, which preserves your patched install.
+  - Enter `n` to leave Spotify's updater active. Note that a Spotify update will overwrite the patch and SpotX will need to be re-run.
+
+  ### Wait for completion
+
+  The script applies all patches to `xpui.spa` and relevant Spotify binaries. When it exits, Spotify is ready to use with the new theme and all experimental features enabled.
+
+</Steps>
+
+<Tip>
+  To skip the interactive prompts and pre-answer them via flags, see [Configuration Parameters](/configuration/parameters). For example, add `-podcasts_off -block_update_on` to hide podcasts and block updates without being asked.
+</Tip>

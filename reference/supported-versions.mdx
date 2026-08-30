@@ -1,0 +1,100 @@
+---
+title: "Spotify Version Support Matrix for SpotX"
+sidebarTitle: "Supported Versions"
+description: "SpotX supports Spotify desktop on Windows 7–11. Version support varies by OS and CPU architecture. Check the compatibility matrix before installing."
+---
+
+SpotX tracks a single recommended Spotify version for each supported OS and CPU architecture combination. When you run SpotX, it automatically detects your Windows version and CPU architecture, then selects the appropriate target Spotify version — or enforces a ceiling if your system cannot run newer builds. You can always override this with the `-v` flag to pin any specific version.
+
+---
+
+## Current version targets
+
+These version strings are defined in the `run.ps1` parameter block and updated with each SpotX release:
+
+| Parameter | Value | Purpose |
+|---|---|---|
+| `$latest_full` | `1.2.97` | Default recommended version for Windows 10, 11, and 12 on x64/ARM64 |
+| `$last_win7_full` | `1.2.5.1006.g22820f93` | Hard ceiling for Windows 7, 8, and 8.1 |
+| `$last_x86_full` | `1.2.53.440.g7b2f582a` | Hard ceiling for 32-bit (x86) Windows installations |
+
+<Note>
+  The recommended version is updated with every SpotX release. Always run the latest version of SpotX to get support for the latest Spotify build.
+</Note>
+
+---
+
+## Compatibility matrix
+
+| OS | Architecture | Max Spotify Version | Notes |
+|---|---|---|---|
+| Windows 10 / 11 / 12 | x64 | **1.2.97** (latest recommended) | Fully supported; receives all patches |
+| Windows 10 / 11 / 12 | ARM64 | **1.2.97** (latest recommended) | ARM64 installer selected automatically |
+| Windows 10 / 11 | x86 (32-bit) | **1.2.53** | x86 support ended after `1.2.53.440.g7b2f582a`; newer versions are automatically downgraded |
+| Windows 7 / 8 / 8.1 | x64 | **1.2.5** | Old OS ceiling enforced; newer versions are automatically replaced with `1.2.5.1006.g22820f93` |
+| Windows 7 / 8 / 8.1 | x86 | **1.2.5** | Both OS and architecture ceilings apply; limited to `1.2.5` |
+
+---
+
+## Version format
+
+Spotify uses a five-part version string:
+
+```text
+MAJOR.MINOR.PATCH.BUILD.gHASH
+```
+
+For example: `1.2.88.485.g1012a6e0`
+
+| Segment | Example | Meaning |
+|---|---|---|
+| `MAJOR.MINOR.PATCH` | `1.2.88` | Semantic release number |
+| `BUILD` | `485` | Incremental build number |
+| `gHASH` | `g1012a6e0` | Short Git commit hash prefix |
+
+SpotX also accepts short version strings like `1.2.88`. When a short version is supplied (missing the `BUILD.gHASH` suffix), SpotX resolves it to the full version string by querying the versions manifest.
+
+---
+
+## Version resolution
+
+Short version strings (e.g., `1.2.88`) are not directly downloadable — Spotify's installer filenames embed the full version. SpotX resolves them automatically by fetching the versions manifest:
+
+```text
+https://raw.githubusercontent.com/LoaderSpot/table/refs/heads/main/table/versions.json
+```
+
+The manifest maps short version numbers to full version strings and provides the correct installer URL for each OS/architecture combination. SpotX selects the `Windows x64`, `Windows x86`, or `Windows arm64` asset as appropriate for your system.
+
+---
+
+## Pinning a specific version
+
+Use the `-v` flag (alias: `-version`) to request a specific Spotify version. You can supply either the short or full version string:
+
+```powershell
+# Short version — resolved automatically via the manifest
+iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -v 1.2.88"
+
+# Full version — used directly without manifest lookup
+iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -v 1.2.88.485.g1012a6e0"
+```
+
+Version constraints still apply even when `-v` is used. If you request a version higher than your OS or architecture supports, SpotX will print a warning and automatically substitute the correct ceiling version.
+
+---
+
+## What happens on a version mismatch
+
+SpotX compares the currently installed Spotify version against its recommended version at startup. The following table describes the outcomes:
+
+| Scenario | Default behaviour | Override flag |
+|---|---|---|
+| Installed version is **older** than recommended | SpotX prompts you to upgrade | `-confirm_spoti_recomended_over` auto-approves the upgrade |
+| Installed version is **newer** than recommended | SpotX warns and asks whether to continue or downgrade | `-confirm_spoti_recomended_uninstall` auto-approves a fresh install |
+| Installed version is **newer than the OS/arch ceiling** | SpotX automatically caps the version | No flag needed; handled silently |
+| Microsoft Store version detected | SpotX offers to uninstall it and install the desktop version | `-confirm_uninstall_ms_spoti` auto-approves the uninstall |
+
+<Tip>
+  Use `-block_update_on` to apply a binary patch to `Spotify.exe` that redirects the auto-update URL to an unreachable channel. This keeps Spotify pinned at the installed version even after SpotX has run, preventing Spotify from silently updating and removing the patch.
+</Tip>

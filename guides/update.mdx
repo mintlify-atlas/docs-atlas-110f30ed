@@ -1,0 +1,72 @@
+---
+title: "Updating SpotX After a Spotify Client Update"
+sidebarTitle: "Updating"
+description: "When Spotify updates itself, the SpotX patch is removed. Re-run the SpotX installer to reapply the patch to the new Spotify version."
+---
+
+SpotX works by modifying Spotify's local files — primarily `xpui.spa`, `Spotify.exe`, `Spotify.dll`, and `chrome_elf.dll` — inside the Spotify installation directory. When Spotify updates itself, it replaces those files with fresh, unpatched originals. This means the SpotX patch is silently removed on every Spotify client update, and you need to reapply it to restore ad-blocking and the other SpotX features.
+
+## Update blocking vs. auto-update
+
+SpotX gives you two modes of operation depending on how you want to manage Spotify updates:
+
+### Update blocking enabled (`-block_update_on`)
+
+When you pass `-block_update_on` during installation, SpotX prevents Spotify from automatically downloading and applying updates by locking the update folder with a deny ACL. The patch remains applied indefinitely until you manually choose to update Spotify.
+
+This is the recommended approach if you want a "set and forget" setup. When you do decide to update Spotify, simply re-run the SpotX installer — it will handle downloading the new Spotify version and reapplying the patch in one step.
+
+### Update blocking disabled
+
+If you did not use `-block_update_on`, Spotify can update itself at any time in the background. After each auto-update you will notice ads returning, which is the signal that the patch needs to be reapplied. Re-run the SpotX installer after every Spotify update to restore the patch.
+
+## Re-running the installer
+
+Re-applying SpotX is identical to the initial installation. Open PowerShell and run:
+
+```powershell
+iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -new_theme"
+```
+
+If you are behind a restrictive network or the primary URL is unreachable, use the mirror instead:
+
+```powershell
+iex "& { $(iwr -useb 'https://spotx-official.github.io/SpotX/run.ps1') } -m -new_theme"
+```
+
+The installer detects your existing Spotify installation and reapplies all selected patches without any additional setup.
+
+## Version mismatch handling
+
+SpotX is tested against a specific recommended Spotify version. When you re-run the installer it compares the installed Spotify version against its baseline:
+
+| Scenario | What happens |
+|---|---|
+| Installed Spotify is **older** than recommended | You are prompted: *"Your Spotify version ({version}) is outdated, the current latest version is — {version}. Want to update? [Y/N]"* |
+| Installed Spotify is **newer** than tested | A warning is shown: *"Your Spotify version ({version}) has not been tested. The stable version for SpotX is {version}. Continue with {version} (errors may occur)? [Y/N]"* — you can continue or downgrade |
+| Versions **match** | Installation proceeds silently |
+
+To skip these interactive version prompts and automatically overwrite or downgrade to the SpotX-recommended version, add the `-confirm_spoti_recomended_over` flag:
+
+```powershell
+iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -new_theme -confirm_spoti_recomended_over"
+```
+
+## Pinning a specific Spotify version
+
+Use the `-version` flag (alias `-v`) to install and patch an exact Spotify version rather than the latest recommended one:
+
+```powershell
+iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -new_theme -v 1.2.13.661.ga588f749"
+```
+
+You can specify either a short version (`1.2.88`) or a full build string (`1.2.88.485.g1012a6e0`).
+
+<Note>
+  During patching, SpotX creates backup copies of the original files it modifies:
+  `Spotify.bak`, `Spotify.dll.bak`, and `chrome_elf.dll.bak` alongside `xpui.bak` in the `Apps` subfolder. These backups are used by the uninstaller to fully restore the original Spotify client without a full reinstall. Do not delete them while SpotX is active.
+</Note>
+
+<Tip>
+  Add `-block_update_on` to your SpotX command to prevent Spotify from auto-updating. This means you only need to re-run SpotX when you consciously decide to move to a newer Spotify version, rather than after every background update.
+</Tip>

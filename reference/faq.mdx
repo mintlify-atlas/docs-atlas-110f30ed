@@ -1,0 +1,136 @@
+---
+title: "SpotX FAQ — Frequently Asked Questions"
+sidebarTitle: "FAQ"
+description: "Answers to the most common SpotX questions covering compatibility, safety, Spotify updates, Microsoft Store, and how the patcher works."
+---
+
+This page answers the most common questions about SpotX — what it does, how it works, what it changes, and how to keep it running after Spotify updates. If your question isn't covered here, check the community resources at the bottom of this page.
+
+---
+
+<AccordionGroup>
+
+  <Accordion title="Is SpotX safe to use?">
+    SpotX is fully open-source. Every line of code is publicly auditable on [GitHub](https://github.com/SpotX-Official/SpotX). It modifies local Spotify files only — nothing is installed system-wide and no background processes are added.
+
+    Windows Defender and some other antivirus tools may flag `run.ps1` or the patched files as suspicious due to the file-modification behaviour inherent in any patcher. These are false positives. SpotX will offer to add a Defender exclusion for the Spotify directory automatically during installation. You can suppress this prompt by passing `-defender_exclusions_off` if you prefer to manage exclusions yourself.
+
+    As with any third-party tool that modifies another application, use SpotX at your own risk. See the [Disclaimer](https://github.com/SpotX-Official/SpotX#disclaimer) in the README for more information.
+  </Accordion>
+
+  <Accordion title="Does SpotX work with the Microsoft Store version of Spotify?">
+    No. SpotX is only compatible with the **official desktop installer** version of Spotify downloaded from Spotify's website or via SpotX itself. The Microsoft Store version stores its files in a sandboxed AppX package with a different directory structure that SpotX cannot patch.
+
+    If SpotX detects the Store version on your system, it will prompt you to uninstall it and install the correct desktop version automatically. Pass `-confirm_uninstall_ms_spoti` to pre-approve that action.
+  </Accordion>
+
+  <Accordion title="Will SpotX stop working after a Spotify update?">
+    Yes. When Spotify updates itself, it replaces the patched files with fresh originals, removing all SpotX modifications. You will need to re-run SpotX after each Spotify update to reapply the patches.
+
+    To prevent this, use the `-block_update_on` flag. This applies a binary patch to `Spotify.exe` that redirects the auto-update URL to a non-existent channel, keeping Spotify on the currently installed version until you decide to update manually.
+
+    ```powershell
+    iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -block_update_on"
+    ```
+  </Accordion>
+
+  <Accordion title="Does SpotX work on Mac or Linux?">
+    No. This repository targets **Windows only** and is written in PowerShell. It will not run on macOS or Linux.
+
+    A separate, community-maintained project called [SpotX-Bash](https://github.com/SpotX-Official/SpotX-Bash) provides equivalent functionality for macOS and Linux using shell scripts.
+  </Accordion>
+
+  <Accordion title="Can I use SpotX with a Premium account?">
+    Yes. Use the `-premium` flag to run SpotX without applying the ad-blocking patches in the `free` section. In premium mode, SpotX:
+
+    - Disables podcast audio ads
+    - Applies UI tweaks and experimental feature overrides
+    - Leaves your premium subscription and its features fully intact
+
+    ```powershell
+    iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -premium"
+    ```
+  </Accordion>
+
+  <Accordion title="How do I update SpotX itself?">
+    SpotX is a script, not an installed application — there is nothing to update in the traditional sense. To always run the latest version of SpotX, simply re-run the `iex` one-liner from the installation instructions. The command fetches the current `run.ps1` directly from GitHub every time it is executed.
+
+    ```powershell
+    iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') }"
+    ```
+
+    Check the [GitHub Releases](https://github.com/SpotX-Official/SpotX/releases) page or the [Telegram channel](https://t.me/spotify_windows_mod) for announcements when a new Spotify version is supported.
+  </Accordion>
+
+  <Accordion title="Why is PowerShell flagging an execution policy error?">
+    The `iex` invocation method used in SpotX's recommended install commands executes the script in memory and inherits the current process policy, which typically bypasses the execution policy restriction. You should not encounter this error when using the `iex` one-liner.
+
+    If you are running `run.ps1` directly from disk (e.g., after cloning the repository), PowerShell may block it depending on your system's execution policy. Run the following command in the **same PowerShell session** before executing the script:
+
+    ```powershell
+    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+    ```
+
+    This only affects the current session and does not change your system-wide policy.
+  </Accordion>
+
+  <Accordion title="Can I run SpotX silently without prompts?">
+    Yes. SpotX exposes flags that pre-answer every interactive prompt, allowing fully unattended installation. A common silent invocation looks like this:
+
+    ```powershell
+    iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -podcasts_off -block_update_on -confirm_spoti_recomended_over -no_pause"
+    ```
+
+    Key flags for silent mode:
+
+    | Flag | Effect |
+    |---|---|
+    | `-podcasts_off` | Hides podcasts/episodes/audiobooks from the homepage without prompting |
+    | `-block_update_on` | Blocks Spotify auto-updates without prompting |
+    | `-confirm_spoti_recomended_over` | Auto-approves overwriting an outdated Spotify version |
+    | `-confirm_uninstall_ms_spoti` | Auto-approves uninstalling the Microsoft Store version |
+    | `-no_pause` | Skips the "Press any key to exit" pause at the end |
+    | `-start_spoti` | Launches Spotify automatically when installation is complete |
+
+    See the [full auto install](/install/full-auto) page for a complete example with all flags.
+  </Accordion>
+
+  <Accordion title="What files does SpotX modify?">
+    SpotX patches the following files inside your Spotify installation directory (`%APPDATA%\Spotify`):
+
+    | File | Location | What is changed |
+    |---|---|---|
+    | `xpui.spa` | `%APPDATA%\Spotify\Apps\` | Main UI bundle (ZIP archive); contains `xpui.js`, `xpui.css`, and related files that receive most JavaScript patches |
+    | `Spotify.exe` | `%APPDATA%\Spotify\` | Binary patches for update blocking and ad slot removal |
+    | `Spotify.dll` | `%APPDATA%\Spotify\` | Additional binary-level modifications |
+    | `chrome_elf.dll` | `%APPDATA%\Spotify\` | Chromium helper DLL modifications |
+
+    Before patching each file, SpotX creates a backup with a `.bak` suffix (e.g., `Spotify.bak`, `Spotify.dll.bak`, `chrome_elf.dll.bak`). The uninstaller uses these backups to restore the original files.
+  </Accordion>
+
+  <Accordion title="Where can I get help or report issues?">
+    The following resources are available for support, bug reports, and community discussion:
+
+    <CardGroup cols={2}>
+      <Card title="GitHub Issues" icon="github" href="https://github.com/SpotX-Official/SpotX/issues">
+        Report bugs or unexpected behaviour. Check existing issues before opening a new one.
+      </Card>
+      <Card title="Telegram Community" icon="telegram" href="https://t.me/SpotxCommunity">
+        Community chat for questions, tips, and help from other SpotX users.
+      </Card>
+      <Card title="Telegram Channel" icon="bell" href="https://t.me/spotify_windows_mod">
+        Official SpotX announcement channel for new releases and Spotify version compatibility updates.
+      </Card>
+      <Card title="Full FAQ" icon="circle-question" href="https://telegra.ph/SpotX-FAQ-09-19">
+        Extended FAQ on Telegra.ph covering additional edge cases and troubleshooting steps.
+      </Card>
+    </CardGroup>
+  </Accordion>
+
+</AccordionGroup>
+
+---
+
+<Note>
+  For the latest SpotX news, supported Spotify version announcements, and patch update notifications, follow the official [Telegram channel](https://t.me/spotify_windows_mod).
+</Note>

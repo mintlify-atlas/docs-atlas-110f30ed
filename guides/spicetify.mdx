@@ -1,0 +1,79 @@
+---
+title: "Using SpotX with Spicetify — Installation Order Matters"
+sidebarTitle: "Spicetify"
+description: "SpotX and Spicetify can be used together, but SpotX must be installed first. Learn the correct installation order to avoid breaking either tool."
+---
+
+SpotX and [Spicetify](https://spicetify.app) are both tools that modify the Spotify desktop client, and they can coexist — but only if they are installed in the correct order. Getting the order wrong causes one tool to silently overwrite the other's changes, leaving Spotify in an inconsistent state.
+
+## Why order matters
+
+SpotX patches Spotify's core files directly:
+
+- **`xpui.spa`** — the main UI bundle, which SpotX unpacks, modifies, and repacks
+- **`Spotify.exe`** and **`Spotify.dll`** — binary patches for ad-blocking and update control
+- **`chrome_elf.dll`** — replaced with SpotX's custom version
+
+Spicetify then hooks into the already-running Spotify client by injecting its own CSS and JavaScript extensions into the same `xpui.spa` archive and related files.
+
+If Spicetify runs **before** SpotX, SpotX will unpack and rewrite `xpui.spa` from scratch, overwriting all of Spicetify's injected extensions. The Spicetify installation effectively disappears.
+
+If SpotX runs **first**, Spicetify can safely layer its extensions on top of the already-patched files without affecting SpotX's core changes. This is the only supported configuration.
+
+## Correct installation order
+
+<Steps>
+  <Step title="Uninstall Spicetify (if already installed)">
+    If Spicetify is currently installed, remove it first. Run the following in PowerShell:
+
+    ```powershell
+    spicetify restore
+    ```
+
+    Then follow Spicetify's own uninstall instructions to remove the CLI tool itself. This ensures there are no leftover Spicetify injections in `xpui.spa` before SpotX runs.
+  </Step>
+  <Step title="Install SpotX">
+    Run the SpotX installer. SpotX will patch `xpui.spa` and the Spotify binaries, creating backup files (`xpui.bak`, `Spotify.bak`, etc.) in the process:
+
+    ```powershell
+    iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -new_theme"
+    ```
+
+    Wait for the installer to complete before moving on.
+  </Step>
+  <Step title="Install Spicetify">
+    Once SpotX has finished, install Spicetify normally. Spicetify will hook into the SpotX-patched version of `xpui.spa` and add its extensions on top without disturbing the underlying SpotX patches.
+
+    Refer to the [Spicetify documentation](https://spicetify.app/docs/getting-started) for installation instructions.
+  </Step>
+</Steps>
+
+## What happens when SpotX detects Spicetify
+
+If SpotX detects an existing Spicetify installation during its own install process, it pauses and shows the following warning:
+
+> *"Spicetify detected, it must be installed after SpotX, open recommended actions in FAQ? [Y/N]"*
+
+- Answer **`Y`** to open the FAQ, which explains the correct workflow in detail.
+- Answer **`N`** to dismiss the warning and continue — however, SpotX will overwrite Spicetify's changes to `xpui.spa`, so you must reinstall Spicetify afterwards.
+
+<Warning>
+  If you continue SpotX installation while Spicetify is active, all Spicetify themes and extensions will be removed from `xpui.spa`. You must reinstall Spicetify after SpotX completes to restore them.
+</Warning>
+
+## After a Spotify update
+
+Spotify updates reset both SpotX and Spicetify simultaneously. Each time Spotify updates, you must reapply both tools **in the same order**:
+
+1. Re-run SpotX first
+2. Re-run `spicetify apply` (or reinstall Spicetify) second
+
+Skipping step 1 or reversing the order will result in a broken Spicetify setup.
+
+<Note>
+  If you use SpotX's `-block_update_on` flag to prevent Spotify from auto-updating, you will only need to redo this process when you deliberately choose to update Spotify — not after every background update.
+</Note>
+
+<Tip>
+  For Spicetify-specific issues such as themes not loading, extensions failing, or marketplace errors, refer to the official [Spicetify documentation](https://spicetify.app) and its community support channels. Those issues are outside the scope of SpotX.
+</Tip>

@@ -1,0 +1,89 @@
+---
+title: "Install SpotX: Quick Start for Windows Spotify Patching"
+sidebarTitle: "Installation"
+description: "Install SpotX in seconds with a single PowerShell command or by running a .bat file. Covers the standard new-theme and automated installs."
+---
+
+SpotX can be installed in two ways: by pasting a **one-line PowerShell command** directly into a PowerShell window, or by downloading and double-clicking a **`.bat` file** that runs the same command for you automatically. Both methods fetch the latest `run.ps1` installer from GitHub at runtime, so you always get the most current version of SpotX without having to download anything in advance.
+
+## Standard Installation (New Theme)
+
+The recommended install type activates the updated Spotify UI (new left and right sidebars, refreshed cover art layout) and includes all experimental features. You will be prompted for two optional choices during setup: whether to hide podcasts/shows/audiobooks from the homepage, and whether to block Spotify's automatic updates.
+
+<Steps>
+  <Step title="Confirm Spotify is installed">
+    Make sure the **official Spotify desktop client** (not the Microsoft Store version) is installed. If it isn't, SpotX can download and install it for you during setup. See [Requirements](/requirements) for compatible versions and the official download link.
+  </Step>
+  <Step title="Open PowerShell">
+    Press <kbd>Win</kbd> + <kbd>R</kbd>, type `powershell`, and press <kbd>Enter</kbd>. No need to run as Administrator for a standard install.
+  </Step>
+  <Step title="Run the SpotX command">
+    Paste one of the commands below and press <kbd>Enter</kbd>. Choose the **Primary** URL first; if `raw.githubusercontent.com` is unreachable in your region, use the **Mirror** instead.
+
+    <CodeGroup>
+      ```powershell Primary
+      iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -new_theme"
+      ```
+
+      ```powershell Mirror
+      iex "& { $(iwr -useb 'https://spotx-official.github.io/SpotX/run.ps1') } -m -new_theme"
+      ```
+    </CodeGroup>
+
+    <Note>
+      The mirror command adds the `-m` flag, which tells SpotX to source all subsequent asset downloads from the `spotx-official.github.io` CDN instead of `raw.githubusercontent.com`. Use this if the primary URL times out or is blocked in your country.
+    </Note>
+  </Step>
+  <Step title="Answer the interactive prompts">
+    The installer will greet you with the SpotX welcome banner and ask two questions:
+
+    - **Hide podcasts, shows, and audiobooks on the homepage?** `[Y/N]` — enter `Y` to remove podcast rows from your home feed, or `N` to keep them.
+    - **Block Spotify updates?** `[Y/N]` — enter `Y` to prevent Spotify from auto-updating over your patched installation, or `N` to allow updates (note: updates will remove the patch).
+
+    If a Microsoft Store version of Spotify is detected, you will also be asked whether to uninstall it before proceeding.
+  </Step>
+  <Step title="Spotify restarts — patched">
+    SpotX patches the client files, optionally adds Microsoft Defender exclusions (prompted), and relaunches Spotify. Once the client opens you will see the new theme and ads will be absent. The installation is complete.
+  </Step>
+</Steps>
+
+<Tip>
+  Add `-no_pause` to either command to skip the "Press any key to exit" pause at the end. This is useful when running SpotX from another script or in an automated pipeline:
+
+  ```powershell
+  iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -new_theme -no_pause"
+  ```
+</Tip>
+
+---
+
+## Batch File Option
+
+If you would rather not open PowerShell manually, you can download and run the pre-configured batch file instead. It executes the same PowerShell command internally — no PowerShell knowledge required.
+
+1. Download **[Install\_New\_theme.bat](https://raw.githack.com/amd64fox/SpotX/main/Install_New_theme.bat)**
+2. Double-click the file to run it
+3. Follow the same interactive prompts described above
+
+The batch file automatically falls back to the github.io mirror if the primary URL fails, so it is resilient to regional network restrictions.
+
+---
+
+## Explore Other Installation Types
+
+SpotX offers additional install variants for different use cases:
+
+<CardGroup cols={2}>
+  <Card title="New Theme Install" icon="paintbrush" href="/install/new-theme">
+    The standard install with the updated Spotify UI and all experimental features enabled.
+  </Card>
+  <Card title="Old Theme Install" icon="clock-rotate-left" href="/install/old-theme">
+    Forces Spotify `1.2.13` with the classic theme and automatic update blocking.
+  </Card>
+  <Card title="Full Auto Install" icon="bolt" href="/install/full-auto">
+    Fully silent install — no prompts. Hides podcasts, blocks updates, sets a lyrics theme, and auto-launches Spotify.
+  </Card>
+  <Card title="Premium Account Install" icon="star" href="/install/premium">
+    Skips ad blocking (for paid subscribers) while still applying experimental features and disabling podcast audio ads.
+  </Card>
+</CardGroup>

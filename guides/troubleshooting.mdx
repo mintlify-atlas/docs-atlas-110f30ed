@@ -1,0 +1,161 @@
+---
+title: "SpotX Troubleshooting: Common Errors and Fixes"
+sidebarTitle: "Troubleshooting"
+description: "Solutions for common SpotX installation errors including download failures, Defender false positives, broken Spotify files, and Microsoft Store conflicts."
+---
+
+Most SpotX installation problems fall into a small number of categories: antivirus interference, network issues, broken Spotify file paths, version mismatches, or conflicts with other Spotify patchers. SpotX includes built-in error handling for all of these — this page explains what each error means and the fastest way to resolve it.
+
+<AccordionGroup>
+
+  <Accordion title="Microsoft Defender flags SpotX as a threat">
+    Because SpotX modifies Spotify's binaries and SPA archive, Microsoft Defender may treat the installer or the patched files as malicious (a false positive).
+
+    **What SpotX does automatically:**
+    SpotX adds exclusions to Microsoft Defender for Spotify's roaming and local directories, the `Spotify.exe`, `Spotify.dll`, `chrome_elf.dll`, and `xpui.spa` files, as well as for the PowerShell process running the installer. This prevents Defender from quarantining patched files mid-installation.
+
+    If SpotX is not running as Administrator, it will prompt you before making any Defender changes:
+
+    > *"Add exclusions to Microsoft Defender to prevent false positives? [Y/N]"*
+
+    Answering `Y` triggers a UAC elevation prompt so the exclusions can be added with the required privileges. If you answer `N`, no exclusions are added and Defender may interfere with the patch.
+
+    **To skip Defender exclusions entirely** (if you manage your own exclusions or use a third-party AV), add the `-defender_exclusions_off` flag:
+
+    ```powershell
+    iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -new_theme -defender_exclusions_off"
+    ```
+  </Accordion>
+
+  <Accordion title="Download fails or times out">
+    SpotX needs to download `patches.json` and, in some cases, a fresh Spotify installer. If your network is slow or the CDN is unreachable, you may see:
+
+    > *"Error downloading … Will re-request in 5 seconds…"*
+
+    **Built-in retry behaviour:**
+    The installer retries failed downloads up to **3 times** with a **5-second delay** between attempts, then automatically falls back from `curl` to `WebClient` (or vice versa) before giving up.
+
+    **Things to try if downloads keep failing:**
+
+    1. **Use the mirror** (`-m` flag) to switch from `raw.githubusercontent.com` to the `spotx-official.github.io` CDN:
+
+       ```powershell
+       iex "& { $(iwr -useb 'https://spotx-official.github.io/SpotX/run.ps1') } -m -new_theme"
+       ```
+
+    2. **Force a specific download method** with `-dm`:
+
+       ```powershell
+       # Force curl
+       iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -new_theme -dm curl"
+
+       # Force WebClient
+       iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -new_theme -dm webclient"
+       ```
+
+    3. Check that your firewall or proxy is not blocking connections to `raw.githubusercontent.com`, `spotx-official.github.io`, or `loadspot.amd64fox1.workers.dev`.
+  </Accordion>
+
+  <Accordion title="'Location of Spotify files is broken' error">
+    **Error message:**
+
+    > *"Location of Spotify files is broken, uninstall Spotify client and run the script again"*
+
+    This error means SpotX found Spotify's executable path in the registry or filesystem, but the files at that location are incomplete, corrupted, or in an unexpected state. This commonly happens after a partial Spotify uninstall or a failed update.
+
+    **Fix:**
+
+    1. Fully uninstall Spotify using the [Uninstall-Spotify](https://github.com/amd64fox/Uninstall-Spotify) tool to remove all leftover files and registry entries.
+    2. Reinstall the official Spotify desktop client from [https://loadspot.vercel.app/](https://loadspot.vercel.app/).
+    3. Re-run the SpotX installer.
+
+    Do not attempt to patch Spotify while the file location is in a broken state — SpotX will stop automatically to prevent further corruption.
+  </Accordion>
+
+  <Accordion title="Microsoft Store version of Spotify detected">
+    SpotX only supports the **official desktop version** of Spotify. The Microsoft Store version (`SpotifyAB.SpotifyMusic`) uses a different app model that SpotX cannot patch.
+
+    When SpotX detects the Store version, it shows:
+
+    > *"The Microsoft Store version of Spotify has been detected which is not supported. Uninstall Spotify Microsoft Store edition? [Y/N]"*
+
+    - Answer `Y` to let SpotX remove it automatically and continue installation with the desktop version.
+    - Answer `N` to abort. You will need to remove the Store version manually before re-running SpotX.
+
+    To bypass the interactive prompt and always remove the Store version automatically, add `-confirm_uninstall_ms_spoti`:
+
+    ```powershell
+    iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -new_theme -confirm_uninstall_ms_spoti"
+    ```
+  </Accordion>
+
+  <Accordion title="Spotify version is newer than tested versions">
+    SpotX is validated against a specific Spotify version. If your installed version is **newer** than the tested baseline, SpotX will warn you:
+
+    > *"Your Spotify version (X.X.X) has not been tested. The stable version for SpotX is Y.Y.Y. Continue with X.X.X (errors may occur)? [Y/N]"*
+
+    You have two options:
+
+    - **Continue (`Y`)** — SpotX will attempt to patch the newer version. Some patches may not apply correctly and errors could occur.
+    - **Downgrade (`N`)** — You will then be asked whether to install the recommended version over the current one or remove and reinstall it. Use `-confirm_spoti_recomended_over` to automate the downgrade:
+
+    ```powershell
+    iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -new_theme -confirm_spoti_recomended_over"
+    ```
+
+    To pin a specific Spotify version (short or full build string), use `-v`:
+
+    ```powershell
+    iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -new_theme -v 1.2.88"
+    ```
+  </Accordion>
+
+  <Accordion title="SpotX has already been installed — xpui.bak not found">
+    **Error message:**
+
+    > *"SpotX has already been installed, xpui.bak not found. Please uninstall Spotify client and run Install.bat again"*
+
+    SpotX stores `xpui.bak` as a backup of the original `xpui.spa` archive before patching it. This error means the backup is missing — most often because Spotify was manually reinstalled or its `Apps` folder was wiped without running the SpotX uninstaller first.
+
+    Without `xpui.bak`, SpotX cannot safely determine the patch state of `xpui.spa` and refuses to continue.
+
+    **Fix:**
+
+    1. Run `Uninstall.bat` if the other backup files are still present, or use the [Full Uninstall Spotify](https://github.com/amd64fox/Uninstall-Spotify) tool for a clean removal.
+    2. Reinstall the official Spotify desktop client.
+    3. Re-run the SpotX installer on the fresh Spotify installation.
+  </Accordion>
+
+  <Accordion title="Spicetify compatibility issues">
+    SpotX and Spicetify are both tools that modify Spotify's client files. Running them in the wrong order causes one to overwrite the other's changes.
+
+    SpotX detects an existing Spicetify installation and shows:
+
+    > *"Spicetify detected, it must be installed after SpotX, open recommended actions in FAQ? [Y/N]"*
+
+    Answer `Y` to open the FAQ, which covers the correct installation order. **SpotX must always be installed before Spicetify.** If Spicetify is already installed, uninstall it first, run SpotX, then reinstall Spicetify.
+
+    See the [Spicetify guide](/guides/spicetify) for the full step-by-step workflow.
+  </Accordion>
+
+  <Accordion title="Hosts file contains unwanted URLs">
+    SpotX scans the Windows `hosts` file for entries that are known to interfere with Spotify's functionality or analytics. If any are found, it reports:
+
+    > *"Unwanted URLs found in hosts file"*
+
+    SpotX will then attempt to back up the hosts file (`hosts.bak`) and remove the unwanted entries automatically. If the script is running without administrator privileges, it will display:
+
+    > *"Something went wrong while editing the hosts file, edit it manually or run the script as administrator"*
+
+    **Fix:** Re-run PowerShell as Administrator, or open `C:\Windows\System32\drivers\etc\hosts` in a text editor (as Administrator) and manually remove any Spotify-related lines that were added by other tools.
+  </Accordion>
+
+</AccordionGroup>
+
+---
+
+<Tip>
+  If your issue is not listed above, the SpotX [Telegram community](https://t.me/SpotxCommunity) is the fastest place to get help from other users and maintainers.
+</Tip>
+
+For questions about SpotX's features and supported configurations, see the [FAQ](/reference/faq).

@@ -1,0 +1,180 @@
+---
+title: "SpotX Parameters: Full CLI Flag Reference"
+sidebarTitle: "Parameters"
+description: "Complete reference for all SpotX PowerShell parameters. Control ad blocking, update behavior, UI themes, podcasts, lyrics, and more."
+---
+
+`run.ps1` accepts named PowerShell parameters that let you customize every aspect of the SpotX installation — from which Spotify version to install, to UI themes, lyric colors, update policies, and developer tooling. Pass any combination of flags directly after the invocation URL.
+
+## General Invocation
+
+```powershell
+iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } [parameters]"
+```
+
+Replace `[parameters]` with one or more of the flags documented below. All parameters are optional; omitting them applies SpotX's sensible defaults.
+
+---
+
+## Parameter Reference
+
+<AccordionGroup>
+
+  <Accordion title="Version & Spotify Installation">
+
+    | Parameter | Alias | Type | Description |
+    |-----------|-------|------|-------------|
+    | `-version` | `-v` | `string` | Override the recommended Spotify version to install. Accepts short form (`1.2.88`) or full build ID (`1.2.88.485.g1012a6e0`). |
+    | `-SpotifyPath` | — | `string` | Custom path to the Spotify installation directory. Defaults to `%APPDATA%\Spotify`. |
+    | `-confirm_spoti_recomended_over` | `-sp-over` | `switch` | Silently overwrite an outdated or unsupported Spotify installation with the recommended version without prompting. |
+    | `-confirm_spoti_recomended_uninstall` | `-sp-uninstall` | `switch` | Uninstall the current Spotify version and replace it with the recommended version automatically. |
+    | `-confirm_uninstall_ms_spoti` | — | `switch` | Automatically uninstall the Microsoft Store version of Spotify if it is detected, without prompting. |
+    | `-download_method` | `-dm` | `string` | Force a specific download method. Accepted values: `curl` or `webclient`. By default SpotX selects the best available method automatically. |
+
+    **Examples**
+
+    ```powershell
+    # Pin to a specific Spotify build
+    iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -version 1.2.88.485.g1012a6e0"
+
+    # Force webclient download and use a custom install path
+    iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -dm webclient -SpotifyPath 'D:\Apps\Spotify'"
+    ```
+
+  </Accordion>
+
+  <Accordion title="Ad Blocking & Features">
+
+    | Parameter | Alias | Type | Description |
+    |-----------|-------|------|-------------|
+    | `-premium` | — | `switch` | Install SpotX **without** ad blocking. Use this if you have a Spotify Premium account and only want the other patches. |
+    | `-podcasts_off` | — | `switch` | Hide podcasts, episodes, and audiobooks from the homepage feed. |
+    | `-podcasts_on` | — | `switch` | Explicitly **keep** podcasts, episodes, and audiobooks visible on the homepage (overrides the default hide behavior on some versions). |
+    | `-adsections_off` | — | `switch` | Disable ad-like promotional sections from the homepage. |
+    | `-canvashome_off` | — | `switch` | Disable the looping canvas video background on the homepage. |
+
+    <Note>
+      `-podcasts_off` and `-podcasts_on` are mutually exclusive. If you pass neither, SpotX uses its built-in default for the detected Spotify version.
+    </Note>
+
+  </Accordion>
+
+  <Accordion title="Update Control">
+
+    | Parameter | Alias | Type | Description |
+    |-----------|-------|------|-------------|
+    | `-block_update_on` | — | `switch` | Block Spotify's automatic background updater so the patched version is not replaced. |
+    | `-block_update_off` | — | `switch` | Explicitly allow Spotify's automatic updates (disables SpotX's update block). |
+    | `-cache_limit` | `-cl` | `int` | Set the threshold (in MB) at which SpotX clears the audio cache. Minimum: `500`, maximum: `20000`. |
+
+    <Warning>
+      If you use `-block_update_off`, a future Spotify auto-update may overwrite the SpotX patches and require you to re-run the installer.
+    </Warning>
+
+  </Accordion>
+
+  <Accordion title="UI & Theme">
+
+    | Parameter | Alias | Type | Description |
+    |-----------|-------|------|-------------|
+    | `-new_theme` | — | `switch` | Activate the modern theme: redesigned left and right sidebars with updated cover art handling. |
+    | `-rightsidebar_off` | — | `switch` | Disable the new right sidebar (only relevant when `-new_theme` is active). |
+    | `-rightsidebarcolor` | — | `switch` | Enable right sidebar background coloring that adapts to the currently playing track's cover art. |
+    | `-topsearchbar` | — | `switch` | Move the search bar to the top of the window. |
+    | `-newFullscreenMode` | — | `switch` | Enable the new fullscreen mode. *(Experimental)* |
+    | `-homesub_off` | — | `switch` | Remove the subfeed filter chip row (genre/mood chips) from the homepage. |
+    | `-hide_col_icon_off` | — | `switch` | Keep collaboration icons visible in collaborative playlists (they are hidden by default). |
+    | `-plus` | — | `switch` | Replace the heart icon with a plus icon, enabling you to save songs, playlists, and podcasts to custom library destinations. |
+    | `-funnyprogressBar` | — | `switch` | Enable the novelty animated progress bar. |
+
+    ```powershell
+    # New theme with right sidebar coloring and top search bar
+    iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -new_theme -rightsidebarcolor -topsearchbar"
+    ```
+
+  </Accordion>
+
+  <Accordion title="Lyrics">
+
+    | Parameter | Alias | Type | Description |
+    |-----------|-------|------|-------------|
+    | `-lyrics_stat` | — | `string` | Apply a static color theme to the lyrics view. See the [Lyrics Themes](/configuration/lyrics-themes) page for all 26 valid values. |
+    | `-lyrics_block` | — | `switch` | Completely disable the native Spotify lyrics feature. |
+
+    Valid values for `-lyrics_stat`:
+
+    ```
+    blue  blueberry  discord  drot  default  forest  fresh  github
+    lavender  orange  postlight  pumpkin  purple  radium  relish  red
+    sandbar  spotify  spotify#2  strawberry  turquoise  yellow  zing
+    pinkle  krux  royal  oceano
+    ```
+
+    ```powershell
+    # Purple static lyrics theme
+    iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -lyrics_stat purple"
+    ```
+
+  </Accordion>
+
+  <Accordion title="Developer & Advanced">
+
+    | Parameter | Alias | Type | Description |
+    |-----------|-------|------|-------------|
+    | `-devtools` | `-dev` | `switch` | Enable Spotify's built-in Chromium DevTools for debugging the client UI. |
+    | `-exp_spotify` | — | `switch` | Defer to Spotify's own experimental feature assignments instead of SpotX overrides. Only essential patches are applied. |
+    | `-CustomPatchesPath` | `-cp` | `string` | Provide a local file path to a custom `patches.json` instead of fetching it remotely. |
+    | `-urlform_goofy` | — | `string` | URL for the Goofy track listening history accumulator form. |
+    | `-idbox_goofy` | — | `string` | Box ID for the Goofy track listening history accumulator. |
+
+    <Tip>
+      `-devtools` opens Chromium DevTools inside the Spotify window. This is useful for inspecting which experimental flags are active — check `window.Spotx.RemoteExp` in the console.
+    </Tip>
+
+  </Accordion>
+
+  <Accordion title="Installation Behavior">
+
+    | Parameter | Alias | Type | Description |
+    |-----------|-------|------|-------------|
+    | `-no_pause` | — | `switch` | Skip the pause-before-exit prompt at the end of installation (useful for scripted/unattended installs). |
+    | `-mirror` | `-m` | `switch` | Download assets from the `github.io` mirror instead of `raw.githubusercontent.com`. Use if you experience rate limiting. |
+    | `-start_spoti` | — | `switch` | Launch Spotify automatically when installation completes. |
+    | `-DisableStartup` | — | `switch` | Prevent Spotify from starting automatically on Windows boot. |
+    | `-no_shortcut` | — | `switch` | Do not create a Spotify desktop shortcut during installation. |
+    | `-defender_exclusions_off` | — | `switch` | Skip adding SpotX to Microsoft Defender's exclusion list. |
+    | `-sendversion_off` | — | `switch` | Disable the telemetry that sends the newly installed version number back to SpotX. |
+    | `-language` | `-l` | `string` | Select the installer UI language. Defaults to the Windows system language. |
+    | `-err_ru` | — | `switch` | Enable Russian-language error log strings in the installer output. |
+
+  </Accordion>
+
+</AccordionGroup>
+
+---
+
+## Full Example Command
+
+<Tip>
+  Combine multiple flags in a single invocation to fully customize your installation:
+
+  ```powershell
+  iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -new_theme -rightsidebarcolor -topsearchbar -podcasts_off -block_update_on -lyrics_stat spotify -start_spoti -no_pause"
+  ```
+
+  This command activates the new theme with dynamic sidebar colors, moves the search bar to the top, hides podcasts, blocks auto-updates, sets the lyrics color theme to `spotify`, and launches Spotify when done — all without any interactive prompts.
+</Tip>
+
+---
+
+## Supported Languages
+
+Pass any of the following BCP 47 language codes to `-language` (or `-l`):
+
+```
+be  bn  cs  de  el  en  es  fa  fi  fil  fr  hi  hu
+id  it  ja  ka  ko  lv  pl  pt  ro  ru  sk  sr  sr-Latn
+sv  ta  tr  uk  vi  zh  zh-TW
+```
+
+If your system language matches one of these codes, SpotX will detect it automatically and you do not need to pass `-language` explicitly.

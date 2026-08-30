@@ -1,0 +1,96 @@
+---
+title: "Full Automatic SpotX Installation — Unattended Setup"
+sidebarTitle: "Full Auto"
+description: "Run SpotX in fully automated mode: removes Spotify MS, installs the recommended version, blocks updates, hides podcasts, and launches Spotify."
+---
+
+The **Full Automatic** installation runs SpotX completely unattended — every interactive prompt is pre-answered via flags, so the script proceeds from start to finish without requiring any input. This is the fastest way to get a fully configured, patched Spotify desktop client from a clean state.
+
+<Note>
+  If a Spotify installation is already present on your system but its version differs from SpotX's recommended version, the Full Auto command will **install the recommended version over it**. Your Spotify profile data and preferences are preserved; only the application files are replaced.
+</Note>
+
+## What It Does
+
+<CardGroup cols={2}>
+  <Card title="New Theme Activated" icon="palette">
+    The modern Spotify UI is enabled, including the redesigned right and left sidebars and cover art changes.
+  </Card>
+  <Card title="Podcasts Hidden" icon="microphone-slash">
+    Podcasts, episodes, and audiobooks are automatically hidden from the Spotify homepage.
+  </Card>
+  <Card title="Static Lyrics Theme" icon="music">
+    The `spotify` static colour theme is applied to the lyrics view.
+  </Card>
+  <Card title="Ad-Like Sections Hidden" icon="eye-slash">
+    Homepage sections that resemble advertisements are removed from the layout.
+  </Card>
+  <Card title="Experimental Features" icon="flask">
+    All curated experimental Spotify features are activated during installation.
+  </Card>
+  <Card title="Spotify MS Removed" icon="trash">
+    If the Microsoft Store version of Spotify is detected, it is automatically uninstalled before the desktop client is set up.
+  </Card>
+  <Card title="Recommended Version Installed" icon="download">
+    The SpotX-recommended Spotify version is installed, overwriting any existing installation if the version differs.
+  </Card>
+  <Card title="Updates Blocked" icon="ban">
+    Spotify's automatic update mechanism is blocked to preserve the patched installation.
+  </Card>
+  <Card title="Spotify Autolaunched" icon="play">
+    Spotify launches automatically once installation and patching are complete.
+  </Card>
+</CardGroup>
+
+## Installation
+
+<Steps>
+
+  ### Open PowerShell
+
+  Press <kbd>Win</kbd> + <kbd>R</kbd>, type `powershell`, and press **Enter**. Alternatively, search for **Windows PowerShell** in the Start menu. PowerShell 5.1 or later is required.
+
+  ### Run the install command
+
+  Paste one of the following commands and press **Enter**. No further interaction is required — the script will handle everything.
+
+  <CodeGroup>
+
+  ```powershell Primary (GitHub)
+  iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -confirm_uninstall_ms_spoti -confirm_spoti_recomended_over -podcasts_off -block_update_on -start_spoti -new_theme -adsections_off -lyrics_stat spotify"
+  ```
+
+  ```powershell Mirror (GitHub Pages)
+  iex "& { $(iwr -useb 'https://spotx-official.github.io/SpotX/run.ps1') } -m -confirm_uninstall_ms_spoti -confirm_spoti_recomended_over -podcasts_off -block_update_on -start_spoti -new_theme -adsections_off -lyrics_stat spotify"
+  ```
+
+  </CodeGroup>
+
+  Use the **mirror** command if the primary URL is unreachable or slow in your region.
+
+  ### Alternatively, use the batch file
+
+  Download and double-click **[Install\_Auto.bat](https://raw.githack.com/amd64fox/SpotX/main/scripts/Install_Auto.bat)**. The batch file runs the same command above and falls back to the mirror automatically if the primary URL fails.
+
+  ### Wait for Spotify to launch
+
+  The script runs without prompts. When all patches are applied, Spotify starts automatically. Installation is complete.
+
+</Steps>
+
+<Tip>
+  **What each flag does** — and how to customise your command:
+
+  | Flag | Effect |
+  |---|---|
+  | `-confirm_uninstall_ms_spoti` | Automatically removes Spotify from the Microsoft Store if detected |
+  | `-confirm_spoti_recomended_over` | Overwrites the existing Spotify install with the recommended version without prompting |
+  | `-podcasts_off` | Hides podcasts, episodes, and audiobooks from the homepage |
+  | `-block_update_on` | Blocks Spotify automatic updates |
+  | `-start_spoti` | Launches Spotify automatically after installation finishes |
+  | `-new_theme` | Enables the modern Spotify UI (new right and left sidebar) |
+  | `-adsections_off` | Hides ad-like sections from the homepage |
+  | `-lyrics_stat spotify` | Sets the static `spotify` colour theme for the lyrics view |
+
+  You can remove any flag you don't want, or add others from the full list at [Configuration Parameters](/configuration/parameters).
+</Tip>

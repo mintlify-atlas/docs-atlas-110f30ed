@@ -1,0 +1,183 @@
+---
+title: "SpotX Patch System — How Ads and Features Are Blocked"
+sidebarTitle: "Patches"
+description: "SpotX uses a JSON-driven patch system to apply regex replacements to Spotify's JavaScript and binary files. Learn how patches.json works."
+---
+
+SpotX applies its modifications through a declarative patch system defined in `patches.json`. Each entry in this file describes a regex search-and-replace operation that SpotX applies to Spotify's internal JavaScript bundle (`xpui.spa`) or directly to the `Spotify.exe` binary. When you run SpotX, the script reads this file, checks each patch's version range against the currently installed Spotify version, and applies only the patches that match.
+
+---
+
+## How patches.json works
+
+Each patch entry in `patches.json` is a JSON object with the following fields:
+
+| Field | Type | Description |
+|---|---|---|
+| `version.fr` | string | Minimum Spotify version the patch applies to (inclusive) |
+| `version.to` | string | Maximum Spotify version the patch applies to (empty string = no upper limit) |
+| `match` | string \| array | Regex pattern(s) to search for inside the target file |
+| `replace` | string \| array | Replacement string(s); supports `$1`, `$2` capture group references |
+| `disable` | boolean | When `true`, the patch is skipped entirely regardless of version |
+
+SpotX performs version range checking before applying any patch. If the installed Spotify version falls outside `[version.fr, version.to]`, the patch is silently skipped.
+
+```json
+{
+  "emptyblock": {
+    "version": {
+      "fr": "1.1.59",
+      "to": ""
+    },
+    "match": "adsEnabled:!0",
+    "replace": "adsEnabled:!1"
+  }
+}
+```
+
+<Note>
+  Patch compatibility is version-gated — not all patches apply to all Spotify versions. A patch with `"to": ""` applies from its `fr` version to any future version until SpotX explicitly restricts it.
+</Note>
+
+---
+
+## Patch categories
+
+`patches.json` is structured into three top-level sections, each targeting a different layer of Spotify's internals.
+
+### `free` — Ad blocking patches
+
+The `free` section contains patches that remove or neuter Spotify's ad delivery mechanisms. These are always applied unless you run SpotX with the `-premium` flag.
+
+<CardGroup cols={2}>
+  <Card title="emptyblock" icon="ban">
+    Replaces `adsEnabled:!0` with `adsEnabled:!1` inside `xpui.js`, disabling the core ad framework. Applies to all versions from `1.1.59` onward with no upper version limit.
+  </Card>
+  <Card title="audioads" icon="volume-xmark">
+    Patches the audio ad enable logic to call `cosmosConnector.increaseStreamTime(-100000000000)` instead of enabling the ad pipeline. Applies to versions `1.1.59`–`1.1.92`.
+  </Card>
+  <Card title="fullscreen" icon="expand">
+    Swaps the `"free"` and `"premium"` string comparisons in the fullscreen code path, granting free accounts access to fullscreen mode. Applies to versions `1.1.59`–`1.1.92`.
+  </Card>
+  <Card title="playlistsponsor" icon="list">
+    Removes all occurrences of the `allSponsorships` identifier, preventing playlist sponsor injection. Applies from `1.1.59` with no upper limit.
+  </Card>
+  <Card title="downloadquality" icon="download">
+    Removes the download quality restriction UI element from desktop settings, effective from `1.1.70` through `1.2.29`.
+  </Card>
+  <Card title="connectold" icon="link">
+    Patches the Connect device list to remove disabled-state CSS classes and restore full control of connected devices. Applies to versions `1.1.70`–`1.1.92`.
+  </Card>
+</CardGroup>
+
+---
+
+### `others` — UI patches, analytics, and feature overrides
+
+The `others` section holds a wide variety of supplementary patches including UI tweaks, analytics disabling, experimental feature injection, and binary-level modifications.
+
+#### `others.ForcedExp` — Experiment override injector
+
+This patch injects a custom experiment override runtime into Spotify's remote config resolver. Once injected, SpotX can enable, disable, or set custom values for any of Spotify's internal A/B test flags by populating the `experiments` object before the resolver runs.
+
+```json
+{
+  "ForcedExp": {
+    "version": { "fr": "1.1.67", "to": "" },
+    "match": "((?:{configuration|{resolver|instance):(.).(?:getRemoteConfig|getUrlDispenserServiceClient).+?;)",
+    "replace": "$1const experiments={enable:[],disable:[],custom:[]},...(config.values||config.activeProperties))"
+  }
+}
+```
+
+#### `others.discriptions` — SpotX branding injection
+
+Injects SpotX's GitHub, Telegram, and FAQ links into the Spotify About screen (`xpui-desktop-modals.js`), along with a disclaimer. The patch matches the copyright paragraph element and appends collapsible `<details>` sections beneath it.
+
+#### `others.DisableExp` — Disable specific experiment flags
+
+A large collection of named patches that disable individual Spotify experiment flags. Each entry maps to a specific flag name. Example entries include:
+
+| Key | Flag name | Description |
+|---|---|---|
+| `InAppMessaging` | `enableInAppMessaging` | Disables the premium upsell pop-up modal |
+| `PickShuffle` | `enablePickAndShuffle` | Removes restrictions on queue and track order |
+| `MusicLeavebehinds` | `enableDesktopMusicLeavebehinds` | Disables ad blocks embedded in playlists |
+| `Dsa3` | `enableDSASetting` | Disables DSA (Digital Services Act) ad features |
+| `UserFraudSignals` | `enableUserFraudSignals` | Disables reCAPTCHA-style bot detection signals |
+
+#### `others.EnableExp` — Enable specific experiment flags
+
+The counterpart to `DisableExp`. Enables native Spotify feature flags that are off by default, such as the audio equalizer, smart shuffle, miniplayer, lyrics, and dozens of other features. Notable entries include:
+
+- `Equalizer` → `enableEqualizer` (from `1.1.88`, no upper limit)
+- `SmartShuffle` → `enableSmartShuffle`
+- `MiniPlayer` → `enableMiniPlayer`
+- `Lyrics` → `enableLyrics`
+- `FullscreenMode` → `enableFullscreenMode`
+- `SleepTimer` → `enableSleepTimer`
+
+#### `others.CustomExp` — Custom experiment values
+
+Enables flags that require a specific non-boolean value. For example, `SocialConnectOnDesktop` enables the group listening session API, and `MandalorianEasterEgg` sets its value to `HELMET_AND_SOUND`.
+
+#### `others.binary` — Binary patches to `Spotify.exe`
+
+These patches are applied to the raw bytes of `Spotify.exe` using ANSI encoding, bypassing the JavaScript layer entirely.
+
+| Key | Description |
+|---|---|
+| `block_update` | Changes the update channel path from version `2` to `7`, redirecting Spotify's auto-update requests away from the live update server |
+| `block_slots` | Replaces `slots` with a no-op `slot}` in ad slot logic, blocking ad slots from being queued |
+| `block_slots_2` | Secondary ad-slot blocking patch for versions `1.2.55`–`1.2.93` |
+| `block_slots_3` | Tertiary slot patch replacing the conditional operator before `payload=` |
+| `block_gabo` | Renames `gabo` → `dodo` in the receiver-service path, breaking the Gabo ad event reporter (up to `1.2.73`) |
+
+#### Other `others` patches
+
+| Key | Description |
+|---|---|
+| `cssmin` / `htmlmin` / `blankmin` / `minjs` / `minjson` | Minification helpers that compact whitespace in various file types inside `xpui.spa` |
+| `disablesentry` | Disables Sentry error reporting (`864e5<30` → `864e5<0`) |
+| `themelyrics` | Injects static lyric color theming into `xpui.css` |
+| `collaboration` | Hides the collaboration icon in playlist headers |
+| `byspotx` | Applies SpotX version branding to the client |
+
+---
+
+### `VariousJs` — Patching `xpui.js` directly
+
+The `VariousJs` section contains patches applied to `xpui.js` (extracted from `xpui.spa`) rather than the minified bundle. These tend to target higher-level feature logic.
+
+| Key | Description | Version range |
+|---|---|---|
+| `product_state` | Spoofs the product state object to return premium catalogue values (`ads:'0'`, `product:'premium'`) | `1.1.93`+ |
+| `mock` | Redirects ad mock/leavebehinds/sponsoredplaylist URLs to `/localhost/` | `1.2.55`+ |
+| `upgradeButton` | Hides the "Upgrade" button by setting its media query breakpoint to `9999990px` | `1.2.55`+ |
+| `upgradeMenu` | Removes the logged-in upgrade menu item by returning `null` early | `1.2.55`+ |
+| `banner_home` | Forces `ADS_PREMIUM` and `isHptoHidden` flags to `true`, removing the homepage banner | `1.1.70`+ |
+| `sentry` | Disables Sentry via a rate-limit threshold patch | `1.1.70`+ |
+| `disablelog` | Clears all `sp://logging/v3/…` URLs to suppress analytics logging | `1.1.70`+ |
+| `dev-tools` | Enables developer tools in the Spotify client | `1.1.98`–`1.2.37` |
+| `offrujs` | Ensures Russian locale is always available alongside English | `1.1.92`+ |
+| `hidemerchsidebar` | Hides the merch sidebar from artist pages | `1.2.0`–`1.2.44` |
+| `similarplaylist` | Enables the similar playlist recommendation feature | — |
+| `lyrics-old-on` / `lyrics-block` | Toggle old or blocked lyrics mode | — |
+
+---
+
+## Using a custom patches.json
+
+You can supply your own `patches.json` file using the `-CustomPatchesPath` (alias `-cp`) flag. This is useful for testing patch changes locally or applying a fork of the patch set without modifying the SpotX source.
+
+```powershell
+iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -cp 'C:\path\to\my-patches.json'"
+```
+
+<Warning>
+  Editing `patches.json` directly is an advanced operation. Incorrect or malformed regex patterns can break Spotify's UI, prevent it from loading, or cause crashes. Always test changes against a specific pinned version using `-v` before relying on them.
+</Warning>
+
+<Tip>
+  The `-devtools` flag (alias `-dev`) enables Spotify's built-in developer tools. Use it to inspect the live JavaScript inside `xpui.js`, identify minified variable names, and prototype new patch patterns before adding them to `patches.json`.
+</Tip>

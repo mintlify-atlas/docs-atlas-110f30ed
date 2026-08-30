@@ -1,0 +1,63 @@
+---
+title: "Uninstall SpotX and Restore the Original Spotify Client"
+sidebarTitle: "Uninstall"
+description: "Remove SpotX patches from Spotify by running Uninstall.bat or reinstalling Spotify. The uninstaller restores original DLL and SPA files."
+---
+
+There are two supported ways to remove SpotX and restore the original Spotify client. The cleanest method is to run the official `Uninstall.bat` script, which replaces every patched file with the backup copy SpotX created during installation. Alternatively, you can do a full Spotify reinstall, which discards all local files entirely.
+
+## Method 1: Run Uninstall.bat
+
+The SpotX uninstaller is a standalone batch script that reverses every file-level change SpotX made. It does not require PowerShell and can be run directly from File Explorer.
+
+<Steps>
+  <Step title="Download Uninstall.bat">
+    Download the uninstaller from the direct link below and save it anywhere on your system (for example, your Desktop):
+
+    ```text
+    https://raw.githack.com/amd64fox/SpotX/main/Uninstall.bat
+    ```
+  </Step>
+  <Step title="Close Spotify">
+    Make sure Spotify is fully closed before proceeding. Right-click the Spotify icon in the system tray and choose **Quit Spotify** to ensure no processes are running.
+  </Step>
+  <Step title="Run the uninstaller">
+    Double-click `Uninstall.bat`. A command prompt window will open, the script will run automatically, and you will see `Patch successfully removed` when it finishes.
+  </Step>
+  <Step title="Restart Spotify">
+    Open Spotify normally. It will start in its original, unpatched state with ads re-enabled.
+  </Step>
+</Steps>
+
+### What Uninstall.bat restores
+
+The uninstaller checks for each backup file in `%APPDATA%\Spotify` and restores it if found:
+
+| Backup file | Restores |
+|---|---|
+| `chrome_elf.dll.bak` | `chrome_elf.dll` |
+| `Spotify.dll.bak` | `Spotify.dll` |
+| `Spotify.bak` | `Spotify.exe` |
+| `Apps\xpui.bak` | `Apps\xpui.spa` |
+
+After restoring the originals, the script also cleans up any `SpotX_Temp*` folders left behind in your system's temp directory.
+
+<Note>
+  If `xpui.bak` is not found (for example because Spotify was manually reinstalled or the backup was accidentally deleted), the uninstaller will skip that step and the restore will be incomplete. In this situation, perform a full Spotify reinstall using the tool described in Method 2 below to ensure a clean state before reusing SpotX.
+</Note>
+
+## Method 2: Reinstall Spotify
+
+If you prefer a completely clean slate — or if the backup files are missing and the uninstaller cannot fully restore Spotify — you can remove Spotify entirely and reinstall it from scratch.
+
+The SpotX project recommends using the dedicated **Full Uninstall Spotify** tool for this:
+
+<Card title="Full Uninstall Spotify" icon="trash" href="https://github.com/amd64fox/Uninstall-Spotify">
+  Completely removes the Spotify desktop client including leftover profile files, cache, and registry entries that a standard uninstall leaves behind.
+</Card>
+
+After running the full uninstall tool, download and install the official Spotify desktop client from [https://loadspot.vercel.app/](https://loadspot.vercel.app/) and then re-run the SpotX installer if desired.
+
+<Warning>
+  Simply deleting the `%APPDATA%\Spotify` folder or uninstalling Spotify through Windows Settings without using the uninstaller may leave partial SpotX files behind (such as modified DLLs or stale backup files). Always use `Uninstall.bat` or the Full Uninstall Spotify tool to ensure a clean removal.
+</Warning>

@@ -1,0 +1,110 @@
+{
+  "projectType": "cli-tool",
+  "projectName": "SpotX",
+  "projectDescription": "A PowerShell-based patcher for the Spotify desktop client on Windows that blocks ads, removes unwanted UI elements, and applies customizable tweaks.",
+  "theme": "almond",
+  "primaryColor": "#24292e",
+  "lightColor": null,
+  "darkColor": null,
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "requirements",
+              "installation"
+            ]
+          },
+          {
+            "group": "Installation Types",
+            "pages": [
+              "install/new-theme",
+              "install/old-theme",
+              "install/full-auto",
+              "install/premium"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/parameters",
+              "configuration/experimental-features",
+              "configuration/lyrics-themes"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/update",
+              "guides/uninstall",
+              "guides/troubleshooting",
+              "guides/spicetify"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/patches",
+              "reference/supported-versions",
+              "reference/faq"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Blocks all banner, video, and audio ads in the Spotify desktop client",
+    "Optional hiding of podcasts, episodes, and audiobooks from the homepage",
+    "Optional blocking of Spotify automatic updates",
+    "Disables analytics and telemetry sending",
+    "Applies and manages Spotify experimental features",
+    "Supports multiple installation themes (new and old Spotify UI)",
+    "Advanced CLI parameters for fully automated/scriptable installs",
+    "Multilingual installer supporting 34+ languages",
+    "Static lyrics color themes (26 color options)",
+    "Microsoft Defender exclusion management to prevent false positives"
+  ],
+  "publicApiSurface": [
+    "-new_theme",
+    "-version / -v",
+    "-podcasts_off",
+    "-podcasts_on",
+    "-block_update_on",
+    "-block_update_off",
+    "-premium",
+    "-confirm_uninstall_ms_spoti",
+    "-confirm_spoti_recomended_over / -sp-over",
+    "-confirm_spoti_recomended_uninstall / -sp-uninstall",
+    "-start_spoti",
+    "-no_pause",
+    "-mirror / -m",
+    "-devtools / -dev",
+    "-adsections_off",
+    "-canvashome_off",
+    "-homesub_off",
+    "-lyrics_stat",
+    "-lyrics_block",
+    "-rightsidebar_off",
+    "-rightsidebarcolor",
+    "-topsearchbar",
+    "-newFullscreenMode",
+    "-cache_limit / -cl",
+    "-no_shortcut",
+    "-DisableStartup",
+    "-SpotifyPath",
+    "-CustomPatchesPath / -cp",
+    "-download_method / -dm",
+    "-language / -l",
+    "-defender_exclusions_off",
+    "-plus",
+    "-funnyprogressBar",
+    "-hide_col_icon_off",
+    "-sendversion_off",
+    "-exp_spotify"
+  ]
+}

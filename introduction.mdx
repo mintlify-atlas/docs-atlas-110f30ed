@@ -1,0 +1,48 @@
+---
+title: "SpotX: Patch Spotify Desktop to Remove Ads on Windows"
+sidebarTitle: "Introduction"
+description: "SpotX is an open-source PowerShell patcher that removes ads, disables telemetry, and adds UI tweaks to the Spotify Windows desktop client."
+---
+
+SpotX is an open-source PowerShell-based patcher for the **Spotify desktop client on Windows**. With a single command, it strips all banner, video, and audio advertisements from your Spotify session, silences analytics and telemetry calls, unlocks a range of experimental UI features, and gives you fine-grained control over updates and podcast visibility — all without requiring a paid subscription or any third-party application framework.
+
+<CardGroup cols={2}>
+  <Card title="Requirements" icon="clipboard-check" href="/requirements">
+    Check OS, PowerShell, and Spotify version compatibility before you begin.
+  </Card>
+  <Card title="Installation" icon="rocket" href="/installation">
+    Run a single PowerShell command or a .bat file to patch Spotify in seconds.
+  </Card>
+  <Card title="Parameters" icon="sliders" href="/configuration/parameters">
+    Explore every CLI flag to tailor SpotX to your exact preferences.
+  </Card>
+  <Card title="FAQ" icon="circle-question" href="/reference/faq">
+    Answers to the most common questions about SpotX.
+  </Card>
+</CardGroup>
+
+## Key Features
+
+- **Blocks all banner, video, and audio ads** inside the Spotify desktop client
+- **Hides podcasts, episodes, and audiobooks** from the homepage (optional, prompted at install time)
+- **Blocks Spotify automatic updates** so a patched version stays intact (optional)
+- **Disables analytics and telemetry** — prevents usage data from being sent to Spotify
+- **Activates native experimental features** shipped inside the client but not yet publicly enabled
+- **New-theme support** — enables the updated left and right sidebars and refreshed cover artwork layout
+- **Lyrics theme customization** — choose from over 25 static color themes (e.g. `spotify`, `blue`, `discord`, `purple`) for the lyrics view
+- **Microsoft Defender exclusion management** — optionally registers SpotX paths as exclusions to prevent false-positive detections
+- **Multilingual installer** — supports 34 languages including English, Spanish, French, German, Japanese, Chinese, Russian, and more
+- **No admin rights required** by default — runs fully in user space (Defender exclusion prompts may request elevation)
+
+## Community & Source Code
+
+SpotX is developed in the open. You can follow announcements, report issues, and discuss the project through its official channels:
+
+- 📣 **Telegram Channel** — [@spotify\_windows\_mod](https://t.me/spotify_windows_mod) for release announcements
+- 💬 **Telegram Community** — [@SpotxCommunity](https://t.me/SpotxCommunity) for help and discussion
+- 🐙 **GitHub** — [SpotX-Official/SpotX](https://github.com/SpotX-Official/SpotX) for source code, issues, and pull requests
+- ❓ **FAQ** — [telegra.ph/SpotX-FAQ-09-19](https://telegra.ph/SpotX-FAQ-09-19) for answers to common questions
+
+<Warning>
+  SpotX modifies the official Spotify desktop client by patching its internal files. It is provided as an **evaluation tool — use it at your own risk**. SpotX is not affiliated with or endorsed by Spotify AB. Spotify's terms of service prohibit modification of the client; continued use of SpotX is solely at your own discretion. The authors accept no liability for account actions, data loss, or any other consequences arising from use of this tool.
+</Warning>

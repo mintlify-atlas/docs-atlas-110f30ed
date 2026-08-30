@@ -1,0 +1,169 @@
+---
+title: "SpotX Lyrics Color Themes — 26 Static Theme Options"
+sidebarTitle: "Lyrics Themes"
+description: "Apply a static color theme to the Spotify lyrics view using SpotX. Choose from 26 presets including spotify, purple, ocean, red, and more."
+---
+
+The `-lyrics_stat` parameter applies a static color scheme to Spotify's lyrics view, locking it to a chosen palette and overriding Spotify's dynamic color algorithm that normally shifts colors based on the currently playing track's artwork. This is useful if you prefer a consistent, predictable look in the lyrics panel regardless of what you're listening to.
+
+## Usage
+
+Pass `-lyrics_stat` followed by one of the 26 valid theme names:
+
+```powershell
+iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -new_theme -lyrics_stat spotify"
+```
+
+You can combine `-lyrics_stat` with any other SpotX parameter. The `-new_theme` flag is not required for lyrics theming, but it is recommended for the best visual consistency.
+
+<Note>
+  Using `default` as the value explicitly restores Spotify's own dynamic color algorithm — the lyrics view will shift colors based on each track's cover art, which is also the behavior when `-lyrics_stat` is omitted entirely.
+</Note>
+
+---
+
+## All 26 Theme Names
+
+The valid values are defined in the `run.ps1` `ArgumentCompleter` block. Tab-completion is supported if you run `run.ps1` directly in a PowerShell session.
+
+<CardGroup cols={3}>
+  <Card title="blue" icon="droplet">
+    A clean, cool blue palette.
+  </Card>
+  <Card title="blueberry" icon="droplet">
+    Deep indigo-blue tones inspired by blueberry.
+  </Card>
+  <Card title="discord" icon="droplet">
+    Discord's signature dark-mode blurple styling.
+  </Card>
+  <Card title="drot" icon="droplet">
+    A muted, warm amber-brown tone.
+  </Card>
+  <Card title="default" icon="wand-magic-sparkles">
+    Spotify's own dynamic color algorithm (per-track).
+  </Card>
+  <Card title="forest" icon="tree">
+    Deep greens reminiscent of a forest canopy.
+  </Card>
+  <Card title="fresh" icon="leaf">
+    Light, airy mint-green accents.
+  </Card>
+  <Card title="github" icon="code">
+    GitHub's dark-mode monochrome grey/white palette.
+  </Card>
+  <Card title="lavender" icon="droplet">
+    Soft purple-pink lavender hues.
+  </Card>
+  <Card title="orange" icon="sun">
+    Warm, vibrant orange tones.
+  </Card>
+  <Card title="postlight" icon="sun">
+    Light editorial-style cream and off-white tones.
+  </Card>
+  <Card title="pumpkin" icon="droplet">
+    Rich autumn orange-gold, deeper than `orange`.
+  </Card>
+  <Card title="purple" icon="droplet">
+    Bold, saturated purple across the lyrics view.
+  </Card>
+  <Card title="radium" icon="bolt">
+    Bright neon-green, high-contrast radioactive glow.
+  </Card>
+  <Card title="relish" icon="droplet">
+    Warm red-green condiment-inspired contrast theme.
+  </Card>
+  <Card title="red" icon="droplet">
+    Clean, vivid red accents throughout the lyrics.
+  </Card>
+  <Card title="sandbar" icon="sun">
+    Warm sandy beige and neutral earth tones.
+  </Card>
+  <Card title="spotify" icon="music">
+    Spotify's signature green — matches the official branding.
+  </Card>
+  <Card title="spotify#2" icon="music">
+    A second Spotify green variant with alternate shade balance.
+  </Card>
+  <Card title="strawberry" icon="droplet">
+    Bright pinkish-red strawberry tones.
+  </Card>
+  <Card title="turquoise" icon="droplet">
+    Vivid cyan-turquoise, bright and eye-catching.
+  </Card>
+  <Card title="yellow" icon="sun">
+    Warm golden-yellow accent palette.
+  </Card>
+  <Card title="zing" icon="bolt">
+    High-energy neon accent theme with sharp contrast.
+  </Card>
+  <Card title="pinkle" icon="droplet">
+    Playful pastel pink tones.
+  </Card>
+  <Card title="krux" icon="bolt">
+    Dark, bold high-contrast color scheme.
+  </Card>
+  <Card title="royal" icon="droplet">
+    Rich royal blue with deep jewel-tone accents.
+  </Card>
+  <Card title="oceano" icon="droplet">
+    Deep ocean blue with teal undertones.
+  </Card>
+</CardGroup>
+
+---
+
+## Full Theme Name Reference Table
+
+| Theme | Style |
+|-------|-------|
+| `blue` | Cool blue |
+| `blueberry` | Deep indigo |
+| `discord` | Blurple dark-mode |
+| `drot` | Warm amber |
+| `default` | Dynamic (per-track) |
+| `forest` | Deep green |
+| `fresh` | Mint green |
+| `github` | Grey/white monochrome |
+| `lavender` | Soft purple-pink |
+| `orange` | Warm orange |
+| `postlight` | Light cream |
+| `pumpkin` | Autumn orange-gold |
+| `purple` | Bold purple |
+| `radium` | Neon green |
+| `relish` | Red-green contrast |
+| `red` | Vivid red |
+| `sandbar` | Sandy beige |
+| `spotify` | Spotify green |
+| `spotify#2` | Spotify green (alt) |
+| `strawberry` | Pink-red |
+| `turquoise` | Cyan-turquoise |
+| `yellow` | Golden yellow |
+| `zing` | Neon accent |
+| `pinkle` | Pastel pink |
+| `krux` | Dark bold |
+| `royal` | Royal blue |
+| `oceano` | Deep ocean blue |
+
+---
+
+## Disabling Lyrics Entirely
+
+If you prefer not to use Spotify's native lyrics feature at all, pass `-lyrics_block` instead:
+
+```powershell
+iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -lyrics_block"
+```
+
+This removes the lyrics panel from the Spotify UI completely. It cannot be combined with `-lyrics_stat` — use one or the other.
+
+---
+
+## Tips
+
+<Tip>
+  The `spotify` and `spotify#2` themes are the closest match to Spotify's official green brand color (`#1DB954`). They are a good choice if you want lyrics theming that feels native and on-brand rather than a custom accent.
+</Tip>
+
+<Tip>
+  Theme names are tab-completable directly in PowerShell. If you run `run.ps1` locally rather than via `iex`, type `-lyrics_stat ` and press <kbd>Tab</kbd> to cycle through all 26 options.
+</Tip>

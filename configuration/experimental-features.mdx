@@ -1,0 +1,192 @@
+---
+title: "Spotify Experimental Features Controlled by SpotX"
+sidebarTitle: "Experimental Features"
+description: "SpotX enables, disables, and customizes Spotify's internal experimental feature flags. Learn which features are controlled and how to override them."
+---
+
+Spotify ships a remote configuration system — sometimes called "remote config" or "experiments" — that gates features behind internal boolean flags. The client fetches its flag assignments from Spotify's servers at startup, which means Spotify can turn features on or off for any user at any time. SpotX intercepts this resolver and injects its own `enable`, `disable`, and `custom` arrays before the client reads them, giving you a stable, predictable feature set regardless of what Spotify's servers push.
+
+---
+
+## The `ForcedExp` Patch Mechanism
+
+SpotX patches the Spotify JavaScript bundle to inject the following logic immediately after the remote config resolver is initialized:
+
+```javascript
+const experiments = { enable: [], disable: [], custom: [] };
+
+const setExpValue = (v, e, val) =>
+  v && (v.set ? v.set(e, val) : v[e] && (v[e].value = val));
+
+const config =
+  $2.getRemoteConfigResolver?.() || $2.getRemoteConfiguration?.();
+
+if (config) {
+  (values => {
+    for (const type in experiments)
+      experiments[type].forEach(exp =>
+        setExpValue(
+          values,
+          type === 'custom' ? exp.name : exp,
+          type === 'custom' ? exp.value : type === 'enable'
+        )
+      );
+    (window.Spotx ?? {}).RemoteExp = values;
+  })(config.values || config.activeProperties);
+}
+```
+
+The `enable`, `disable`, and `custom` arrays are populated by SpotX at patch time based on your chosen flags and the Spotify version detected. The final resolved state is also written to `window.Spotx.RemoteExp` so you can inspect it in DevTools.
+
+<Note>
+  The exact set of feature flags injected varies by Spotify version. SpotX reads each flag's `fr` (from) and `to` (to) version bounds from `patches.json` and only applies flags that are within range for your installed version.
+</Note>
+
+---
+
+## Flags SpotX Disables by Default
+
+The following Spotify experimental flags are added to the `disable[]` array by SpotX on every install unless `-exp_spotify` is passed. They are sourced from the `DisableExp` section of `patches.json`.
+
+<AccordionGroup>
+
+  <Accordion title="Premium Upsell & In-App Messaging">
+
+    | Flag name | Versions | Description |
+    |-----------|----------|-------------|
+    | `enableInAppMessaging` | 1.1.59 → current | Disables Spotify's quicksilver in-app modal that prompts free users to purchase Premium. |
+    | `enableYourListeningUpsell` | 1.2.25 → 1.2.63 | Removes the "Your Listening" upsell banner shown to free and unauthenticated users. |
+
+  </Accordion>
+
+  <Accordion title="Ad-Related Flags">
+
+    | Flag name | Versions | Description |
+    |-----------|----------|-------------|
+    | `enableContentInformationMessage` | 1.1.78 → 1.2.50 | Removes COVID-era informational messages injected between podcast episodes. |
+    | `enablePickAndShuffle` | 1.1.85 → 1.2.42 | Removes the forced shuffle restriction that prevented free users from listening to tracks in order. |
+    | `enableDesktopMusicLeavebehinds` | 1.2.10 → 1.2.93 | Disables ad-block overlays ("leavebehinds") injected into eligible playlists. |
+    | `enableHptoLocationRefactor` | 1.2.1 → 1.2.20 | Disables the banner takeover ("HPTO") that appears on the homepage in some regions. |
+    | `podcastads-ads_npb` | 1.1.67 → 1.2.50 | Disables the podcast ads Now Playing Bar experience, including the podcast ad NPB hat. |
+    | `podcastaudioplus-episode_entity` | 1.1.67 → 1.2.50 | Removes the "Sponsored By" section on the Episode page. |
+    | `podcastaudioplus-show_page` | 1.1.77 → 1.2.50 | Removes the show sponsors section on the Show page. |
+    | `enableHomeAds` | 1.2.31 → 1.2.84 | Disables First Impression Takeover ads on the Home page. |
+    | `enableNewAdsNpv` | 1.2.18 → 1.2.50 | Disables the redesigned Now Playing View ad slot. |
+    | `enableAudiobookAdExclusivity` | 1.2.19 → 1.2.84 | Disables Audiobook Ad Format Exclusivity. |
+    | `enablePodcastSponsoredContent` | 1.2.26 → 1.2.50 | Disables sponsored content information displayed for podcasts. |
+    | `enableGabitoAdEvent` | 1.1.93 → 1.2.25 | Disables the Gabito AdEvent ad telemetry system. |
+    | `AutoSeekToAdPosition` | 1.2.26 → current | Prevents the player from seeking to injected ad positions. |
+
+  </Accordion>
+
+  <Accordion title="Fraud Detection & reCAPTCHA">
+
+    | Flag name | Versions | Description |
+    |-----------|----------|-------------|
+    | `enableUserFraudSignals` | 1.2.10 → 1.2.62 | Disables bot-detection signal collection. |
+    | `enableUserFraudVerificationRequest` | 1.2.5 → 1.2.62 | Prevents the IAV component from making fraud-verification API requests. |
+    | `enableUserFraudVerification` | 1.2.3 → 1.2.62 | Disables the user fraud verification UI. |
+    | `enableUserFraudCspViolation` | 1.2.17 → 1.2.62 | Disables CSP violation detection used for fraud analysis. |
+    | `enableFraudLoadSignals` | 1.2.22 → 1.2.62 | Disables fraud signals that are emitted on page load. |
+
+  </Accordion>
+
+  <Accordion title="DSA / Digital Services Act">
+
+    | Flag name | Versions | Description |
+    |-----------|----------|-------------|
+    | `enableDsa` | 1.2.12 → 1.2.19 | Hides the DSA context menu and modal for ads. |
+    | `enableDsaAds` | 1.2.20 → 1.2.52 | Removes the DSA disclosure UI attached to ad formats. |
+    | `enableDSASetting` | 1.2.20 → current | Disables DSA (Digital Services Act) features for desktop. |
+
+  </Accordion>
+
+  <Accordion title="Report Actions (Podcast / Audiobook)">
+
+    | Flag name | Versions | Description |
+    |-----------|----------|-------------|
+    | `enableReportAudiobooks` | 1.1.97 → 1.2.50 | Removes the Report action from audiobook entries. |
+    | `enableReportPodcastShows` | 1.2.12 → current | Removes the Report action from podcast show pages. |
+    | `enableReportPodcastEpisodes` | 1.2.12 → current | Removes the Report action from podcast episode pages. |
+    | `enableReportAudiobookChapters` | 1.2.12 → 1.2.50 | Removes the Report action from audiobook chapter entries. |
+
+  </Accordion>
+
+</AccordionGroup>
+
+---
+
+## Flags SpotX Enables by Default
+
+The `EnableExp` section of `patches.json` lists features that SpotX activates by adding them to the `enable[]` array. Key examples include:
+
+<AccordionGroup>
+
+  <Accordion title="Sidebar Flags (New Theme)">
+
+    When you pass `-new_theme`, SpotX enables these sidebar flags:
+
+    | Flag name | Versions | Description |
+    |-----------|----------|-------------|
+    | `enableYLXSidebar` | 1.2.0 → 1.2.14 | Enables the "Your Library X" redesigned left sidebar. |
+    | `enableRightSidebar` | 1.1.98 → 1.2.23 | Enables the right sidebar panel in the Now Playing view. |
+    | `enableRightSidebarLyrics` | 1.2.0 → 1.2.61 | Displays lyrics inside the right sidebar instead of the bottom bar. |
+    | `enableRightSidebarCredits` | 1.2.7 → 1.2.25 | Shows track credits in the right sidebar. |
+    | `enableRightSidebarArtistEnhanced` | 1.2.16 → 1.2.50 | Enables the Artist About V2 section in the Now Playing View. |
+    | `enableRightSidebarTransitionAnimations` | 1.2.8 → 1.2.33 | Adds slide-in/out transition animations to the right sidebar. |
+
+    When `-rightsidebar_off` is passed, `enableRightSidebar` and related flags are added to `disable[]` instead.
+
+    When `-rightsidebarcolor` is passed, SpotX additionally enables:
+
+    | Flag name | Versions | Description |
+    |-----------|----------|-------------|
+    | `enableRightSidebarExtractedColors` | 1.2.1 → 1.2.78 | Extracts the dominant background color from the current track's artwork and applies it to the right sidebar. |
+
+  </Accordion>
+
+  <Accordion title="Quality of Life & UI Features">
+
+    | Flag name | Versions | Description |
+    |-----------|----------|-------------|
+    | `enableEqualizer` | 1.1.88 → current | Enables the audio equalizer in Desktop settings. |
+    | `enableSilenceTrimmer` | 1.1.99 → 1.2.93 | Trims silence at the start and end of podcast episodes. |
+    | `enableSmallPlaybackSpeedIncrements` | 1.2.0 → 1.2.14 | Allows 0.1-step playback speed adjustments (0.5×–3.5×) for podcasts. |
+    | `enableIgnoreInRecommendations` | 1.1.87 → 1.2.50 | Lets you exclude playlists from the recommendations algorithm. |
+    | `enableAlbumReleaseAnniversaries` | 1.1.89 → current | Shows balloon animations on album release date anniversaries. |
+    | `enableWhatsNewFeed` | 1.2.12 → 1.2.16 | Enables the "What's New" feed panel. |
+    | `enableWhatsNewFeedMainView` | 1.2.17 → 1.2.45 | Shows the What's New feed in the main content view. |
+
+  </Accordion>
+
+</AccordionGroup>
+
+---
+
+## The `-exp_spotify` Flag
+
+<Warning>
+  When `-exp_spotify` is passed, SpotX skips all `EnableExp` and `DisableExp` injections and defers entirely to Spotify's server-side experiment assignments. This means:
+
+  - Premium upsell pop-ups (`enableInAppMessaging`) may reappear
+  - Ad-like homepage sections may be shown based on your account's A/B bucket
+  - Sidebar features may be enabled or disabled by Spotify without notice
+
+  Use this flag only if you are troubleshooting a specific Spotify feature that SpotX's overrides are interfering with.
+</Warning>
+
+Even with `-exp_spotify`, the core `ForcedExp` injection script is still installed — it simply receives empty arrays, leaving `window.Spotx.RemoteExp` available for inspection but unmodified from Spotify's defaults.
+
+---
+
+## Debugging Experimental Flags
+
+<Tip>
+  Enable DevTools with `-devtools` and open the Spotify DevTools console. Type:
+
+  ```javascript
+  window.Spotx.RemoteExp
+  ```
+
+  This prints the full map of all resolved remote config values after SpotX has applied its overrides — useful for verifying which flags are active on your specific Spotify version.
+</Tip>
