@@ -1,5 +1,5 @@
 ---
-title: "Updating SpotX After a Spotify Client Update"
+title: "How to Reapply SpotX After Every Spotify Client Update"
 sidebarTitle: "Updating"
 description: "When Spotify updates itself, the SpotX patch is removed. Re-run the SpotX installer to reapply the patch to the new Spotify version."
 ---
@@ -42,8 +42,8 @@ SpotX is tested against a specific recommended Spotify version. When you re-run 
 
 | Scenario | What happens |
 |---|---|
-| Installed Spotify is **older** than recommended | You are prompted: *"Your Spotify version ({version}) is outdated, the current latest version is — {version}. Want to update? [Y/N]"* |
-| Installed Spotify is **newer** than tested | A warning is shown: *"Your Spotify version ({version}) has not been tested. The stable version for SpotX is {version}. Continue with {version} (errors may occur)? [Y/N]"* — you can continue or downgrade |
+| Installed Spotify is **older** than recommended | You are prompted: *"Your Spotify version (X.X.X) is outdated, the current latest version is — Y.Y.Y. Want to update? [Y/N]"* |
+| Installed Spotify is **newer** than tested | A warning is shown: *"Your Spotify version (X.X.X) has not been tested. The stable version for SpotX is Y.Y.Y. Continue with X.X.X (errors may occur)? [Y/N]"* — you can continue or downgrade |
 | Versions **match** | Installation proceeds silently |
 
 To skip these interactive version prompts and automatically overwrite or downgrade to the SpotX-recommended version, add the `-confirm_spoti_recomended_over` flag:

@@ -1,5 +1,5 @@
 ---
-title: "SpotX Parameters: Full CLI Flag Reference"
+title: "SpotX run.ps1 Parameters: Complete CLI Flag Reference"
 sidebarTitle: "Parameters"
 description: "Complete reference for all SpotX PowerShell parameters. Control ad blocking, update behavior, UI themes, podcasts, lyrics, and more."
 ---
@@ -65,7 +65,7 @@ Replace `[parameters]` with one or more of the flags documented below. All param
     |-----------|-------|------|-------------|
     | `-block_update_on` | — | `switch` | Block Spotify's automatic background updater so the patched version is not replaced. |
     | `-block_update_off` | — | `switch` | Explicitly allow Spotify's automatic updates (disables SpotX's update block). |
-    | `-cache_limit` | `-cl` | `int` | Set the threshold (in MB) at which SpotX clears the audio cache. Minimum: `500`, maximum: `20000`. |
+    | `-cache_limit` | `-cl` | `int` | Set the threshold (in MB) at which SpotX clears the audio cache. |
 
     <Warning>
       If you use `-block_update_off`, a future Spotify auto-update may overwrite the SpotX patches and require you to re-run the installer.
@@ -98,7 +98,7 @@ Replace `[parameters]` with one or more of the flags documented below. All param
 
     | Parameter | Alias | Type | Description |
     |-----------|-------|------|-------------|
-    | `-lyrics_stat` | — | `string` | Apply a static color theme to the lyrics view. See the [Lyrics Themes](/configuration/lyrics-themes) page for all 26 valid values. |
+    | `-lyrics_stat` | — | `string` | Apply a static color theme to the lyrics view. See the [Lyrics Themes](/configuration/lyrics-themes) page for all 27 valid values. |
     | `-lyrics_block` | — | `switch` | Completely disable the native Spotify lyrics feature. |
 
     Valid values for `-lyrics_stat`:
@@ -150,6 +150,14 @@ Replace `[parameters]` with one or more of the flags documented below. All param
   </Accordion>
 
 </AccordionGroup>
+
+---
+
+## Deprecated Parameters
+
+<Warning>
+  **`-old_lyrics`** — This parameter is deprecated and has no effect. Old lyrics are enabled by default. If you have this flag in an existing command, remove it.
+</Warning>
 
 ---
 

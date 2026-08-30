@@ -1,14 +1,14 @@
 ---
-title: "SpotX Lyrics Color Themes — 26 Static Theme Options"
+title: "SpotX Lyrics Color Themes — 27 Static Theme Options"
 sidebarTitle: "Lyrics Themes"
-description: "Apply a static color theme to the Spotify lyrics view using SpotX. Choose from 26 presets including spotify, purple, ocean, red, and more."
+description: "Apply a static color theme to the Spotify lyrics view using SpotX. Choose from 27 presets including spotify, purple, oceano, red, and more."
 ---
 
 The `-lyrics_stat` parameter applies a static color scheme to Spotify's lyrics view, locking it to a chosen palette and overriding Spotify's dynamic color algorithm that normally shifts colors based on the currently playing track's artwork. This is useful if you prefer a consistent, predictable look in the lyrics panel regardless of what you're listening to.
 
 ## Usage
 
-Pass `-lyrics_stat` followed by one of the 26 valid theme names:
+Pass `-lyrics_stat` followed by one of the 27 valid theme names:
 
 ```powershell
 iex "& { $(iwr -useb 'https://raw.githubusercontent.com/SpotX-Official/SpotX/refs/heads/main/run.ps1') } -new_theme -lyrics_stat spotify"
@@ -22,11 +22,11 @@ You can combine `-lyrics_stat` with any other SpotX parameter. The `-new_theme` 
 
 ---
 
-## All 26 Theme Names
+## All 27 Theme Names
 
 The valid values are defined in the `run.ps1` `ArgumentCompleter` block. Tab-completion is supported if you run `run.ps1` directly in a PowerShell session.
 
-<CardGroup cols={3}>
+<CardGroup cols={2}>
   <Card title="blue" icon="droplet">
     A clean, cool blue palette.
   </Card>
@@ -165,5 +165,5 @@ This removes the lyrics panel from the Spotify UI completely. It cannot be combi
 </Tip>
 
 <Tip>
-  Theme names are tab-completable directly in PowerShell. If you run `run.ps1` locally rather than via `iex`, type `-lyrics_stat ` and press <kbd>Tab</kbd> to cycle through all 26 options.
+  Theme names are tab-completable directly in PowerShell. If you run `run.ps1` locally rather than via `iex`, type `-lyrics_stat ` and press <kbd>Tab</kbd> to cycle through all 27 options.
 </Tip>

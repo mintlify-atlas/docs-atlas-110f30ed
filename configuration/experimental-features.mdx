@@ -166,16 +166,12 @@ The `EnableExp` section of `patches.json` lists features that SpotX activates by
 ## The `-exp_spotify` Flag
 
 <Warning>
-  When `-exp_spotify` is passed, SpotX skips all `EnableExp` and `DisableExp` injections and defers entirely to Spotify's server-side experiment assignments. This means:
+  When `-exp_spotify` is passed, SpotX prunes most `EnableExp` and `CustomExp` overrides, deferring those decisions to Spotify's server-side assignments. Two essential `EnableExp` entries are retained — `BrowseViaPathfinder` and `HomeViaGraphQLV2` — along with `LyricsUpsell` and `LyricsVariationsInNPV` from `CustomExp`. All `DisableExp` entries (ad blocking, fraud signals, DSA flags, etc.) are still applied in full.
 
-  - Premium upsell pop-ups (`enableInAppMessaging`) may reappear
-  - Ad-like homepage sections may be shown based on your account's A/B bucket
-  - Sidebar features may be enabled or disabled by Spotify without notice
-
-  Use this flag only if you are troubleshooting a specific Spotify feature that SpotX's overrides are interfering with.
+  Use this flag only if you are troubleshooting a specific Spotify feature that SpotX's `EnableExp` overrides are interfering with.
 </Warning>
 
-Even with `-exp_spotify`, the core `ForcedExp` injection script is still installed — it simply receives empty arrays, leaving `window.Spotx.RemoteExp` available for inspection but unmodified from Spotify's defaults.
+Even with `-exp_spotify`, the core `ForcedExp` injection script is still installed and the `DisableExp` array remains fully populated. The `window.Spotx.RemoteExp` object is still available in DevTools for inspection.
 
 ---
 

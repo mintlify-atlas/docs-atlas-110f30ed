@@ -131,14 +131,15 @@ These patches are applied to the raw bytes of `Spotify.exe` using ANSI encoding,
 | `block_slots` | Replaces `slots` with a no-op `slot}` in ad slot logic, blocking ad slots from being queued |
 | `block_slots_2` | Secondary ad-slot blocking patch for versions `1.2.55`–`1.2.93` |
 | `block_slots_3` | Tertiary slot patch replacing the conditional operator before `payload=` |
-| `block_gabo` | Renames `gabo` → `dodo` in the receiver-service path, breaking the Gabo ad event reporter (up to `1.2.73`) |
+| `block_gabo` | Renames `gabo` → `dodo` in the receiver-service path, breaking the Gabo ad event reporter. Applies to versions `1.1.59`–`1.2.73` |
+| `block_gabo2` | Continuation of `block_gabo` for versions `1.2.74`+. Renames `gabo` → `dodo` in the receiver-service path with an updated pattern that matches `/public` and non-slash suffixes |
 
 #### Other `others` patches
 
 | Key | Description |
 |---|---|
 | `cssmin` / `htmlmin` / `blankmin` / `minjs` / `minjson` | Minification helpers that compact whitespace in various file types inside `xpui.spa` |
-| `disablesentry` | Disables Sentry error reporting (`864e5<30` → `864e5<0`) |
+| `disablesentry` | Removes gabo ad-event import patterns (`@\w+\/gabo[^\"]+` → empty string), cutting gabo analytics at the module level |
 | `themelyrics` | Injects static lyric color theming into `xpui.css` |
 | `collaboration` | Hides the collaboration icon in playlist headers |
 | `byspotx` | Applies SpotX version branding to the client |
@@ -161,8 +162,9 @@ The `VariousJs` section contains patches applied to `xpui.js` (extracted from `x
 | `dev-tools` | Enables developer tools in the Spotify client | `1.1.98`–`1.2.37` |
 | `offrujs` | Ensures Russian locale is always available alongside English | `1.1.92`+ |
 | `hidemerchsidebar` | Hides the merch sidebar from artist pages | `1.2.0`–`1.2.44` |
-| `similarplaylist` | Enables the similar playlist recommendation feature | — |
-| `lyrics-old-on` / `lyrics-block` | Toggle old or blocked lyrics mode | — |
+| `similarplaylist` | Enables the similar playlist recommendation feature | `1.1.85`–`1.2.24` |
+| `lyrics-old-on` | Forces the old lyrics provider by spoofing the app version header sent with lyrics API requests | `1.1.70`–`1.2.35` |
+| `lyrics-block` | Blocks the lyrics API response entirely by replacing the request expression with `{}` | `1.1.70`–`1.2.40` |
 
 ---
 
